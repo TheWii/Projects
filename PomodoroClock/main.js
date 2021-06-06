@@ -55,6 +55,7 @@ let timer = {
     start: null,
     interval: null,
     onBreak: false, 
+    audio: new Audio("alarm.mp3"),
 
     run() {
         this.state = 'running';
@@ -99,6 +100,7 @@ let timer = {
         this.start = getTime();
         this.interval = window.setInterval(this.runoutInterval(), 100);
         blink.start();
+        this.audio.play();
     },
     
     
@@ -167,8 +169,8 @@ let blink = {
 
     start() {
         window.clearInterval(this.interval);
-        this.timeStart = getTime();
         this.interval = window.setInterval(this.run(), 100);
+        this.timeStart = getTime();
         this.time = 0;
     },
     
