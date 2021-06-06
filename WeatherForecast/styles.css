@@ -1,0 +1,178 @@
+
+:root {
+    --black: rgb(26, 28, 36);
+    --white: #e3e3e3;
+    --gray: #909090;
+    --blue: #081c5f;
+    --red: #e74141;
+    --darkred: #c21a1a;
+    --gold: #ffa837;
+}
+
+button {
+    cursor: pointer;
+}
+
+input {
+    -webkit-appearance: none;
+}
+
+button,
+input {
+    background: none;
+    border: none;
+    outline: none;
+    color: inherit;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    background: none;
+    outline: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+body {
+    font-family: 'Rubik', sans-serif;
+    font-size: 18px;
+    color: var(--white);
+    background-color: var(--blue);
+    line-height: 1.5;
+}
+
+
+.container {
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.title {
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.top form {
+    display: flex;
+    justify-content: center;
+}
+
+.top form input {
+    font-size: 1.75rem;
+    height: 34px;
+    padding: 5px 10px 10px;
+    border: 2px solid;
+}
+   
+.top form input::placeholder {
+    color: currentColor; 
+}
+   
+.top form button {
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    padding: 15px 20px;
+    margin-left: 15px;
+    border: 2px solid;
+    border-radius: 5px;
+    border-color: var(--white);
+    background: none;
+    transition: all 0.3s ease;
+    transition-property: color, border-color;
+}
+   
+.top form button:hover {
+    border-color: var(--red);
+    color: var(--red);
+}
+
+.top .label {
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.01rem;
+    margin-top: 2px;
+}
+
+
+.bottom .cities {
+    display: grid;
+    grid-gap: 16px 20px;
+    grid-template-columns: repeat(4, 0fr);
+    justify-content: center;
+    margin-top: 50px;
+}
+
+@media screen and (max-width: 900px) {
+    .bottom .cities {
+        grid-template-columns: repeat(3, 0fr);
+    }
+}
+
+@media screen and (max-width: 750px) {
+    .bottom .cities {
+        grid-template-columns: repeat(2, 0fr);
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .bottom .cities {
+        grid-template-columns: repeat(1, 0fr);
+    }
+}
+
+
+.bottom .city {
+    position: relative;
+    padding: 10px 20px;
+    width: 130px;
+    height: 220px;
+    border-radius: 5px;
+    background: var(--white);
+    color: var(--black);
+}
+
+.bottom .city h2 {
+    font-size: 0.75rem;
+    margin-top: 0;
+    margin-bottom: auto;
+    padding: 0;
+}
+
+.bottom .city .country {
+    padding: 1px 4px;
+    background: var(--gold);
+    border-radius: 10px;
+}
+
+.bottom .city .temp {
+    font-size: 1.75rem;
+    font-weight: bold;
+}
+
+.bottom .city figure {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 0;
+}
+
+.bottom .city figure img {
+    width: 90px;
+    height: 90px;
+}
+
+.bottom .city figure figcaption {
+    font-size: 0.75rem;
+    font-weight: 2rem;
+    letter-spacing: 0.05rem;
+    text-transform: uppercase;
+}

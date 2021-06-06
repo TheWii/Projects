@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Color Picker by TheWii</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <nav>
+            <div class="nav-center">
+                <h4>Color Picker</h4>
+            </div>
+        </nav>
+        <main>
+            <div class="container">
+                <h2>
+                    Color: 
+                    <span class="color-hex">WHITE</span>
+                </h2>
+                <div id="rgb-slider" class="slider-container">
+                    <h3 class="title">RGB</h3>
+                    <div class="sliders">
+                        <div class="color-slider">
+                            <span class="label">RED (<span class="red-value">?</span>) </span>
+                            <input type="range" min="0", max="255", value="0" id="slider-red">
+                        </div>
+                        <div class="color-slider">
+                            <span class="label">GREEN (<span class="green-value">?</span>) </span>
+                            <input type="range" min="0", max="255", value="0" id="slider-green">
+                        </div>
+                        <div class="color-slider">
+                            <span class="label">BLUE (<span class="blue-value">?</span>) </span>
+                            <input type="range" min="0", max="255", value="0" id="slider-blue">
+                        </div>
+                    </div>
+                </div>
+                <button id="flipper-button" class="btn btn-hero" onclick="pickColor()">Random Color</button>
+            </div>
+        </main>
+        <script src="main.js"></script>
+    </body>
+</html>
