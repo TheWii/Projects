@@ -11,12 +11,8 @@
 }
 
 
-button {
-    cursor: pointer;
-    background: none;
-    border: none;
-    outline: none;
-    color: inherit;
+html {
+    font-size: 1.5em;
 }
 
 
@@ -26,6 +22,16 @@ body {
     background: var(--root-bg);
 }
 
+
+button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    outline: none;
+    color: inherit;
+}
+
+
 .container {
     display: flex;
     flex-direction: column;
@@ -34,11 +40,10 @@ body {
 
 
 .clock {
-    font-size: 0;
-    padding: 5px 25px;
-    margin: 25px 10px;
-    width: 350px;
-    border-radius: 20px;
+    padding: 0.5rem 2rem;
+    margin: 1.5rem 0.6rem;
+    min-width: 22.25rem;
+    border-radius: 1.5rem;
     background: var(--clock-bg);
 }
 
@@ -48,20 +53,21 @@ body {
     color: var(--clock-color);
 }
 
+.clock .sep {
+    color: var(--clock-sep);
+}
+
 .clock .blinking {
     color: var(--clock-blink);
 }
 
-.clock .sep {
-    color: var(--clock-sep);
-}
 
 
 .label {
     font-weight: bold;
     font-size: 1.25rem;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 0.5em;
 }
 
 
@@ -70,11 +76,12 @@ body {
 }
 
 .buttons button {
+    font-size: 1rem;
     font-weight: bold;
     text-transform: uppercase;
-    padding: 5px 10px;
-    border: 3px solid;
-    border-radius: 2px;
+    padding: 0.3em 0.7em;
+    border: 0.18em solid;
+    border-radius: 0.15em;
     transition: 0.2s ease;
     transition-property: border-color, color;
 }

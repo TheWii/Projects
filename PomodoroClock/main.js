@@ -55,7 +55,10 @@ let timer = {
     start: null,
     interval: null,
     onBreak: false, 
-    audio: new Audio("alarm.mp3"),
+    audio: new Howl({
+        src: ["alarm.mp3"],
+        volume: 0.3,
+    }),
 
     run() {
         this.state = 'running';
@@ -102,8 +105,7 @@ let timer = {
         blink.start();
         this.audio.play();
     },
-    
-    
+
     endRunout() {
         this.onBreak = !this.onBreak;
         this.session++;
