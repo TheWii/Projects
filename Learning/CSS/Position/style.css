@@ -1,0 +1,59 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-size: 1.2rem;
+}
+
+.container {
+    margin: 5em auto;
+    max-width: 75ch;
+}
+
+.parent {
+    position: relative; /**/
+    width: 200px;
+    height: 100px;
+    background: cyan;
+    border: 3px black solid;
+}
+
+.child {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: grid;
+    place-content: center;
+    padding: 0.5em;
+    background: pink;
+    border: 3px black solid;
+}
+
+.fixed {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 50px;
+    background: greenyellow;
+    border: 3px black solid;
+}
+
+.fixed-label {
+    position: fixed;
+    left: -10px;
+    bottom: 20px;
+    padding: 0.4em 0.7em;
+    background: chocolate;
+    border: 3px black solid;
+    color: whitesmoke;
+    text-transform: uppercase;
+}
+
+.text {
+    text-align: justify;
+    text-justify: inter-word;
+}

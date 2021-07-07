@@ -47,8 +47,8 @@ let manager = {
 
 let timer = {
     state: 'beginning',
-    sessionDuration: 15,
-    breakDuration: 5,
+    sessionDuration: 3000,
+    breakDuration: 600,
     session: 0,
     elapsed: 0,
     pauseTime: 0,

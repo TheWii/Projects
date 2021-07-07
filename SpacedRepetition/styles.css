@@ -1,0 +1,272 @@
+:root {
+    --background: #ffbf47;
+    --red: #ff3939;
+    --text-focus: #f0f0f0;
+    --text: #060312;
+    --placeholder-text: #211749;
+    --item-backgr: #fafafa;
+    --item-detail: rgb(194, 194, 194);
+    --item-unchecked: #ffffff;
+    --button-color: #ff571f;
+    --button-hover: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    font-size: 1.2rem;
+}
+
+body {
+    background-color: var(--background);
+    font-family: 'Rubik', sans-serif;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    background: none;
+    border: none;
+    outline: none;
+    color: inherit;
+    overflow: visible;
+}
+
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 1em;
+}
+
+input {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    background: none;
+    overflow: visible;
+    margin: 0;
+}
+
+input::placeholder {
+    color: var(--placeholder-text);
+    opacity: 1;
+}
+
+
+.container {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.top {
+    padding: 1em 0;
+}
+
+.top button {
+    font-size: 1rem;
+    color: var(--button-color);
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.25em 1.5em;
+    border: 0.1em solid;
+    border-radius: 0.2em;
+    transition: 0.3s ease-in-out;
+    transition-property: color, border-color;
+}
+
+.top button:hover,
+.top button:focus {
+    color: var(--button-hover);
+    border-color: var(--button-hover);
+}
+
+
+.add-item-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: none;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: auto;
+    background: rgba(0, 0, 0, 0.281);
+    animation-name: animate-modal-background;
+    animation-duration: 0.4s;
+}
+
+.add-item-modal.visible {
+    display: grid;
+}
+
+.add-item-modal .content {
+    position: relative;
+    top: 5em;
+    padding: 2em 3em;
+    height: fit-content;
+    border-radius: 0.5em;
+    box-shadow: 3px 3px 10px #06031249;
+    background: var(--item-backgr);
+    animation-name: animate-modal-container;
+    animation-duration: 0.4s;
+}
+
+@keyframes animate-modal-container {
+    from {top: 2em; opacity: 0;}
+    to {top: 5em; opacity: 1;}
+}
+@keyframes animate-modal-background {
+    from {opacity: 0}
+    to {opacity: 1}
+}
+
+
+.add-item-modal button {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    padding: 0.25em 1em;
+    border: 0.1em solid;
+    border-radius: 0.2em;
+}
+
+.add-item-modal button.cancel {
+    color: var(--red);
+}
+
+.add-item-modal input {
+    font-size: 1rem;
+    padding: 0.25em 0.5em;
+    border: 0.1em solid;
+    border-radius: 0.2em;
+}
+
+
+.items {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+
+.item {
+    background-color: var(--item-backgr);
+    width: 40em;
+    border-radius: 0.5em;
+    box-shadow: 3px 3px 10px #06031249;
+    animation-name: item-show;
+    animation-duration: 0.5s;
+}
+
+@keyframes item-show {
+    from {opacity: 0; transform:translateY(-1em)}
+    to {opacity: 1; transform:translateY(0)}
+}
+
+.item .content {
+    padding: 0.5em;
+}
+
+.item .head {
+    position: relative;
+    width: 100%;
+} 
+
+.item .head .info {
+    max-width: 50%;
+}
+
+
+.item .head .title {
+    font-size: 1.25rem;
+    text-transform: capitalize;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    margin-bottom: 0.4em;
+}
+
+.item .head .category {
+    font-weight: 700;
+    text-transform: uppercase;
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.item .head .delete {
+    font-size: 1rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-weight: 700;
+    color: #fff;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 25%;
+    background: var(--red);
+
+    
+}
+
+
+.item .body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.5s ease-out;
+}
+
+.item.active .body {
+    max-height: 100vh;
+}
+
+.item .bottom {
+    position: relative;
+    display: grid;
+    align-items: center;
+}
+
+.item .bottom::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0.5em;
+    right: 0.5em;
+    border-top: 1px var(--item-detail) solid;
+    border-radius: 0.5em;
+}
+
+.item .bottom .expand {
+    font-size: 1.1rem;
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+    color: var(--item-detail);
+    cursor: pointer;
+    display: grid;
+    justify-content: center;
+    padding: 0.4em 0 0.4em 0;
+}
+
+
+.item .arrow {
+    display: block;
+    width: 0.5em;
+    height: 0.5em;
+    border-bottom: 0.2em var(--item-detail) solid;
+    border-right: 0.2em var(--item-detail) solid;
+    transform: rotate(45deg);
+    transition: transform 0.3s ease-out;
+}
+
+.item.active .arrow {
+    transform: rotate(225deg);
+}
