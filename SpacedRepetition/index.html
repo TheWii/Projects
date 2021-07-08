@@ -9,33 +9,38 @@
 
 <body>
 
-    <section class='top'>
-        <div class="container">
-            <button class="new-item" type="button">new item</button>
+    <div class="wrap">
+
+        <div class='top'>
+            <button class="new-item" type="button">Add New Item</button>
+            <button class="new-category" type="button">Add New Category</button>
         </div>
-    </section>
 
-    <section class="bottom">
-        <div class="container">
-            <ul class="items">
-
-            </ul>
+        <div class="bottom">
+            <ul class="items"></ul>
         </div>
-    </section>
 
-    <div class="add-item-modal">
+    </div>
 
+    <div class="modal add-item">
         <div class="content">
-    
             <form autocomplete="off">        
                 <input class="title" type="text" placeholder="Title">
                 <input class="category" type="text" placeholder="Category">
                 <button class="add" type="submit">ADD</button>
                 <button class="cancel" type="button">CANCEL</button>
             </form>
-        
         </div>
+    </div>
     
+    <div class="modal add-category">
+        <div class="content">
+            <form autocomplete="off">        
+                <input class="name" type="text" placeholder="Name">
+                <button class="add" type="submit">ADD</button>
+                <button class="cancel" type="button">CANCEL</button>
+            </form>
+        </div>
     </div>
 
     <script src="main.js"></script>

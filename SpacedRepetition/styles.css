@@ -57,23 +57,29 @@ input::placeholder {
 }
 
 
-.container {
-    display: grid;
+
+.wrap {
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    margin: 0.5em;
 }
 
+
+
+.top
 
 .top {
     padding: 1em 0;
 }
 
 .top button {
-    font-size: 1rem;
     color: var(--button-color);
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
-    padding: 0.25em 1.5em;
+    padding: 0.25em 0.5em;
     border: 0.1em solid;
     border-radius: 0.2em;
     transition: 0.3s ease-in-out;
@@ -87,7 +93,8 @@ input::placeholder {
 }
 
 
-.add-item-modal {
+
+.modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -98,15 +105,15 @@ input::placeholder {
     z-index: 1;
     overflow: auto;
     background: rgba(0, 0, 0, 0.281);
-    animation-name: animate-modal-background;
+    animation-name: modal-background;
     animation-duration: 0.4s;
 }
 
-.add-item-modal.visible {
+.modal.visible {
     display: grid;
 }
 
-.add-item-modal .content {
+.modal .content {
     position: relative;
     top: 5em;
     padding: 2em 3em;
@@ -114,21 +121,20 @@ input::placeholder {
     border-radius: 0.5em;
     box-shadow: 3px 3px 10px #06031249;
     background: var(--item-backgr);
-    animation-name: animate-modal-container;
+    animation-name: modal-container;
     animation-duration: 0.4s;
 }
 
-@keyframes animate-modal-container {
-    from {top: 2em; opacity: 0;}
-    to {top: 5em; opacity: 1;}
+@keyframes modal-container {
+    from {transform:translateY(-2em); opacity: 0;}
+    to {opacity: 1;}
 }
-@keyframes animate-modal-background {
+@keyframes modal-background {
     from {opacity: 0}
     to {opacity: 1}
 }
 
-
-.add-item-modal button {
+.modal button {
     font-size: 1rem;
     font-weight: 700;
     text-transform: capitalize;
@@ -137,16 +143,17 @@ input::placeholder {
     border-radius: 0.2em;
 }
 
-.add-item-modal button.cancel {
+.modal button.cancel {
     color: var(--red);
 }
 
-.add-item-modal input {
+.modal input {
     font-size: 1rem;
     padding: 0.25em 0.5em;
     border: 0.1em solid;
     border-radius: 0.2em;
 }
+
 
 
 .items {
@@ -167,7 +174,7 @@ input::placeholder {
 
 @keyframes item-show {
     from {opacity: 0; transform:translateY(-1em)}
-    to {opacity: 1; transform:translateY(0)}
+    to {opacity: 1;}
 }
 
 .item .content {

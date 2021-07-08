@@ -1,10 +1,6 @@
 
 const btnNewItem = document.querySelector('button.new-item');
-
-const btnAdd = document.querySelector('.add-item-modal .add');
-const btnCancel = document.querySelector('.add-item-modal .cancel');
-const inpTitle = document.querySelector('.add-item-modal .title');
-const inpCategory = document.querySelector('.add-item-modal .category');
+const btnNewCategory = document.querySelector('button.new-category');
 
 let itemMarkup = null;
 
@@ -16,25 +12,8 @@ async function load() {
 }
 load();
 
-//---------------------------------------------------------------------------//
-
-btnAdd.addEventListener("click", e => {
-    e.preventDefault();
-    addItem.clicked();
-});
-
-btnNewItem.addEventListener("click", e => {
-    e.preventDefault();
-    addItem.open();
-});
-
-btnCancel.addEventListener("click", e => {
-    e.preventDefault();
-    addItem.close();
-});
 
 //---------------------------------------------------------------------------//
-
 class Item {
     constructor(title, category, createdAt=null) {
         this.expanded = false;
@@ -88,35 +67,76 @@ class Item {
 
 
 let addItem = {
-    element: document.querySelector('.add-item-modal'),
+    element: document.querySelector('.modal.add-item'),
+    inpTitle: document.querySelector('.modal.add-item .title'),
+    inpCategory: document.querySelector('.modal.add-item .category'),
+    btnAdd: document.querySelector('.modal.add-item .add'),
+    btnCancel: document.querySelector('.modal.add-item .cancel'),
     
+
     open() {
         this.element.classList.add('visible');
-        inpTitle.focus();
+        this.inpTitle.focus();
     },
     
     close() {
-        inpTitle.value = '';
+        this.inpTitle.value = '';
         this.element.classList.remove('visible');
     },
+
 
     clicked() {
         if (!this.valid()) {
             console.log("Invalid arguments.")
             return;
         }
-        const name = inpTitle.value.trim();
-        const category = inpCategory.value.trim();
+        const name = this.inpTitle.value.trim();
+        const category = this.inpCategory.value.trim();
         const item = itemList.createItem(name, category);
         itemList.add(item);
         this.close();
     },
     
     valid() {
-        if (inpTitle.value.trim() === '') {
+        if (this.inpTitle.value.trim() === '') {
             return false;
         }
-        if (inpCategory.value.trim() === '') {
+        if (this.inpCategory.value.trim() === '') {
+            return false;
+        }
+        return true;
+    },
+}
+
+let addCategory = {
+    element: document.querySelector('.modal.add-category'),
+    inpName: document.querySelector('.modal.add-category .name'),
+    btnAdd: document.querySelector('.modal.add-category .add'),
+    btnCancel: document.querySelector('.modal.add-category .cancel'),
+    
+
+    open() {
+        this.element.classList.add('visible');
+        this.inpName.focus();
+    },
+    
+    close() {
+        this.inpName.value = '';
+        this.element.classList.remove('visible');
+    },
+
+
+    clicked() {
+        if (!this.valid()) {
+            console.log("Invalid arguments.")
+            return;
+        }
+        const name = this.inpName.value.trim();
+        this.close();
+    },
+    
+    valid() {
+        if (this.inpName.value.trim() === '') {
             return false;
         }
         return true;
@@ -132,48 +152,93 @@ let itemList = {
     createItem(title, category, createdAt=null) {
         return new Item(title, category, createdAt);
     },
+
     
-    add(item) {
-        this.items.push(item);
-        this.element.appendChild(item.element);
+    unsavedAdd(...items) {
+        for (const item of items) {
+            if (!(item instanceof Item)) continue;
+            this.items.push(item);
+            this.element.appendChild(item.element);
+        }
+        console.log(`Added ${items.length} item(s).`);
+    },
+
+    add(...items) {
+        this.unsavedAdd(...items);
         this.save();
     },
 
-    remove(item) {
-        const i = this.items.indexOf(item);
-        this.items.splice(i, 1);
-        this.element.removeChild(item.element);
+    unsavedRemove(...items) {
+        for (const item of items) {
+            if (!(item instanceof Item)) continue;
+            const i = this.items.indexOf(item);
+            this.items.splice(i, 1);
+            this.element.removeChild(item.element);
+        }
+        console.log(`Removed ${items.length} item(s).`)
+    },
+
+    remove(...items) {
+        this.unsavedRemove(...items);
         this.save();
     },
     
+
     load() {
-        let items = JSON.parse(
+        const data = JSON.parse(
             window.localStorage.getItem('items') || '[]'
         );
-        
-        for (let item of items) {
-            let obj = this.createItem(
+
+        const items = data.map(item =>
+            this.createItem(
                 item.title,
                 item.category,
                 item.createdAt
-            );
-            this.add(obj);
-        }
+            )
+        );
+        this.unsavedAdd(...items);
+        console.log(`Loaded items from storage.`);
         
     },
     
     save() {
-        const data = [];
-        for (let item of this.items) {
-            data.push({
+        const data = this.items.map(
+            item => ({
                 title: item.title,
                 category: item.category,
                 createdAt: item.createdAt
-            });
-        }
+        }));
         const json = JSON.stringify(data);
         window.localStorage.setItem('items', json);
+        console.log(`Saved items to storage.`);
     }
 }
 
 //---------------------------------------------------------------------------//
+
+addItem.btnAdd.addEventListener("click", e => {
+    e.preventDefault();
+    addItem.clicked();
+});
+
+
+btnNewCategory.addEventListener("click", e => {
+    e.preventDefault();
+    addCategory.open();
+});
+
+addCategory.btnCancel.addEventListener("click", e => {
+    e.preventDefault();
+    addCategory.close();
+});
+
+
+btnNewItem.addEventListener("click", e => {
+    e.preventDefault();
+    addItem.open();
+});
+
+addItem.btnCancel.addEventListener("click", e => {
+    e.preventDefault();
+    addItem.close();
+});
