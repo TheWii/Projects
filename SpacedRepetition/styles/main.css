@@ -8,6 +8,10 @@
     --item-backgr: #fafafa;
     --item-detail: #cccccc;
     --item-unchecked: #ffffff;
+    --item-check-bar-center: #e2e2e2;
+    --item-check-bar-pending: #ffb648;
+    --item-check-bar-today: #48ff9a;
+    --item-check-bar-scheduled: #8848ff;
     --category-backgr: #f6f6f6;
     --category-text: #5a5a5a;
     --button-color: #ff571f;
@@ -358,6 +362,72 @@ button.delete {
 }
 .item.active .arrow {
     transform: translate(0.2em, 0.1em) rotate(225deg);
+}
+
+
+
+.item-check {
+    font-size: 1em;
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.item-check > .info {
+    display: flex;
+    flex-direction: column;
+}
+
+.item-check .status {
+    text-transform: uppercase;
+}
+
+.item-check > .bar {
+    position: relative;
+    padding: 1.0em 0;
+}
+
+.revisions > li + li .item-check .bar::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    top: -1.1em; /* half the height */
+    left: 50%;
+    width: 0.3em;
+    height: 2.2em; /* should be larger than twice the size of the padding*/
+    margin-left: -0.15em; /* half the width */
+    background: var(--item-check-bar-scheduled);
+}
+
+.item-check .bar .outer {
+    position: relative;
+    z-index: 1;
+    padding: 0.2em;
+    border: 0.3em var(--item-check-bar-scheduled) solid;
+    border-radius: 50%;
+}
+
+.revisions > li + li .item-check[status="today"] .bar::before {
+    background-color: var(--item-check-bar-today);
+}
+.item-check[status="today"] .bar .outer {
+    border-color: var(--item-check-bar-today);
+}
+
+.revisions > li + li .item-check[status="pending"] .bar::before {
+    background-color: var(--item-check-bar-pending);
+}
+.item-check[status="pending"] .bar .outer {
+    border-color: var(--item-check-bar-pending);
+}
+
+
+
+.item-check .bar .inner {
+    background: var(--item-check-bar-center);
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
 }
 
 

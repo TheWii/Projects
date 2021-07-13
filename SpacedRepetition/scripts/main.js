@@ -1,4 +1,11 @@
-
+// revision dates since item creation(in days)
+let defaultDates = [
+    0,
+    1,
+    2,
+    3,
+    4
+].map(i => i * 24);
 
 const btnNewItem = document.querySelector('button.new-item');
 const btnNewCategory = document.querySelector('button.new-category');
@@ -11,6 +18,7 @@ let categoryMarkup = null;
 async function init() {
     itemMarkup = await fetch('markup/item.html').then(r => r.text());
     categoryMarkup = await fetch('markup/category.html').then(r => r.text());
+    itemCheckMarkup = await fetch('markup/item_check.html').then(r => r.text());
     categories.init();
 }
 
@@ -90,14 +98,17 @@ class Category {
 
 
 class Item {
-    constructor(title, createdAt=null) {
+    constructor(title, dates=null, createdAt=null) {
+        dates = dates ? dates : defaultDates;
+        this.revisions =  dates.map(time =>
+            new Revision(this, time)
+        );
         this.title = title;
         this.createdAt = createdAt ? createdAt : Date.now();
         this.expanded = false;
         this.parent = null;
         this.createElement();
     }
-
 
     createElement() {
         const element = document.createElement('li');
@@ -112,15 +123,29 @@ class Item {
             .addEventListener('click', e => this.delete() );
             
         this.element = element;
+        this.createChecklist();
         this.updateElement();
     }
-
     updateElement() {
         let date = new Date(this.createdAt);
         this.element.querySelector('.info .title').innerHTML = this.title;
         this.element.querySelector('.created-at > .value').innerHTML = date.toLocaleDateString();
+        this.updateChecklist();
     }
 
+    createChecklist() {
+        const listElement = this.element.querySelector('.revisions');
+        for (const revision of this.revisions) {
+            revision.createElement();
+            listElement.appendChild(revision.element);
+        }
+    }
+
+    updateChecklist() {
+        for (const revision of this.revisions) {
+            revision.updateElement();
+        }
+    }
 
     expand() {
         if (this.expanded) return;
@@ -134,12 +159,79 @@ class Item {
         this.element.querySelector('.item').classList.remove('active');
     }
 
-
     delete() {
         this.parent.remove(this);
     }
 
 }
+
+
+class Revision {
+    constructor(parent, time) {
+        this.parent = parent;
+        this.time = time;
+        this.status = null;
+        this.element = null;
+        this.completed = false;
+    }
+
+    createElement() {
+        const element = document.createElement('li');
+        element.classList.add('check-wrap');
+        element.innerHTML = itemCheckMarkup;
+        this.element = element;
+    }
+
+    updateElement() {
+        let time = this.getTotalTime();
+        const date = new Date(time);
+        this.element.querySelector('.date')
+            .innerHTML = date.toLocaleDateString();
+
+        const status = this.getStatusByTime(time);
+        this.setStatus(status);
+    }
+
+    getStatusByTime(time) {
+        if (this.completed) return 'completed';
+
+        const today = new Date();
+        const start = today.setHours(0, 0, 0, 0);
+        const end = today.setHours(23, 59, 59, 999);
+
+        if (start <= time && time <= end) return 'today';
+        if (time < start) return 'pending';
+        return 'scheduled';
+    }
+
+    setStatus(status, text=null) {
+        if (!text) text = this.getName(status);
+        const itemCheck = this.element.querySelector('.item-check');
+        this.element.querySelector('.status').innerHTML = text;
+        itemCheck.setAttribute('status', status);
+        this.status = status;
+    }
+
+    getName(status) {
+        let days = (this.getTotalTime() - Date.now()) / 86400000;
+        days = Math.ceil(Math.abs(days));
+        switch (status) {
+            case 'today': return 'Today';
+            case 'scheduled':
+                if (days > 1) return `In ${days} days`;
+                return 'Tomorrow';
+            case 'pending':
+                if (days > 1) return `${days} days late`;
+                return 'Yesterday';
+            default: return `${days}?`;
+        }
+    }
+
+    getTotalTime() {
+        return this.parent.createdAt + this.time * 3600000;
+    }
+}
+
 
 //---------------------------------------------------------------------------//
 
@@ -243,8 +335,12 @@ let categories = {
     categories: [],
     observer: null,
 
-    createItem(title, createdAt=null) {
-        return new Item(title, createdAt);
+    createItem(title, dates=null, createdAt=null) {
+        return new Item(
+            title,
+            dates=dates,
+            createdAt=createdAt
+        );
     },
 
     createCategory(name) {
@@ -279,13 +375,14 @@ let categories = {
         const data = JSON.parse(
             window.localStorage.getItem('categories') || '[]'
         );
-        console.log(data);
+        //console.log(data);
 
         for (let categoryData of data) {
             const items = categoryData.items.map(itemData =>
                 this.createItem(
                     itemData.title,
-                    itemData.createdAt
+                    null,
+                    itemData.createdAt //- (86400000 * 4)
                 )
             );
             const category = this.createCategory(categoryData.name);
