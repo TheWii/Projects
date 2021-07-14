@@ -167,18 +167,23 @@ class Item {
 
 
 class Revision {
-    constructor(parent, time) {
+    constructor(parent, time, completed=false) {
         this.parent = parent;
         this.time = time;
+        this.completed = completed;
         this.status = null;
         this.element = null;
-        this.completed = false;
     }
 
     createElement() {
         const element = document.createElement('li');
         element.classList.add('check-wrap');
         element.innerHTML = itemCheckMarkup;
+
+        element.querySelector('.circle').addEventListener('click',
+            e => this.clicked()
+        );
+
         this.element = element;
     }
 
@@ -210,8 +215,10 @@ class Revision {
         this.element.querySelector('.status').innerHTML = text;
         itemCheck.setAttribute('status', status);
         this.status = status;
+        this.completed = (this.status === 'completed');
+        itemCheck.setAttribute('clickable', this.isClickable());
     }
-
+    
     getName(status) {
         let days = (this.getTotalTime() - Date.now()) / 86400000;
         days = Math.ceil(Math.abs(days));
@@ -223,12 +230,35 @@ class Revision {
             case 'pending':
                 if (days > 1) return `${days} days late`;
                 return 'Yesterday';
+            case 'completed':
+                return 'Completed';
             default: return `${days}?`;
         }
     }
 
     getTotalTime() {
         return this.parent.createdAt + this.time * 3600000;
+    }
+
+    isClickable() {
+        return (
+            this.status === 'completed' ||
+            this.status === 'today' ||
+            this.status === 'pending'
+        );
+    }
+
+    clicked() {
+        const element = this.element.querySelector('.item-check');
+        if (element.getAttribute('clickable') === 'false') return;
+        
+        if (this.completed) {
+            this.completed = false;
+            const status = this.getStatusByTime(this.getTotalTime());
+            this.setStatus(status);
+            return;
+        }
+        this.setStatus('completed');
     }
 }
 
@@ -376,7 +406,6 @@ let categories = {
             window.localStorage.getItem('categories') || '[]'
         );
         //console.log(data);
-
         for (let categoryData of data) {
             const items = categoryData.items.map(itemData =>
                 this.createItem(
@@ -393,18 +422,17 @@ let categories = {
     },
     
     save() {
-        const data = [];
-        for (let category of this.categories) {
-            const items = category.items.map(item => ({
+        const data = this.categories.map(category => ({
+            name: category.name,
+            items: category.items.map(item => ({
                 title: item.title,
-                createdAt: item.createdAt
-            }));
-            data.push({
-                name: category.name,
-                items: items
-            });
-        }
-
+                createdAt: item.createdAt,
+                dates: item.revisions.map(revision => ({
+                    time: revision.time,
+                    completed: revision.completed
+                }))
+            })),
+        }));
         const json = JSON.stringify(data);
         window.localStorage.setItem('categories', json);
         console.log(`Saved items to storage.`);

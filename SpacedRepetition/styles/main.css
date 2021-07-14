@@ -10,13 +10,18 @@
     --item-unchecked: #ffffff;
     --item-check-bar-center: #e2e2e2;
     --item-check-bar-pending: #ffb648;
-    --item-check-bar-today: #48ff9a;
+    --item-check-bar-completed: #48ff9a;
+    --item-check-bar-today: #4869ff;
     --item-check-bar-scheduled: #8848ff;
     --category-backgr: #f6f6f6;
     --category-text: #5a5a5a;
     --button-color: #ff571f;
     --button-hover: #ffffff;
 }
+
+
+/*----------------------------------------------------------------------*/
+
 
 * {
     box-sizing: border-box;
@@ -70,14 +75,28 @@ a, a:hover, a:focus, a:active {
 }
 
 
+/*----------------------------------------------------------------------*/
+
 
 .arrow {
+    font-size: 1em;
     display: inline-block;
     width: 0.5em;
     height: 0.5em;
     border-bottom: 0.2em var(--item-detail) solid;
     border-right: 0.2em var(--item-detail) solid;
     transform: rotate(0deg);
+}
+
+.check-icon {
+    font-size: 1em;
+    display: inline-block;
+    width: 0.5em;
+    height: 1em;
+    border-bottom: 0.25em var(--item-detail) solid;
+    border-right: 0.25em var(--item-detail) solid;
+    transform: translateY(-0.1em) rotate(45deg);
+
 }
 
 button.delete {
@@ -94,6 +113,7 @@ button.delete {
 }
 
 
+/*----------------------------------------------------------------------*/
 
 
 .content-wrap {
@@ -138,6 +158,8 @@ button.delete {
     border-color: var(--button-hover);
 }
 
+
+/*----------------------------------------------------------------------*/
 
 
 .modal {
@@ -201,6 +223,8 @@ button.delete {
 }
 
 
+/*----------------------------------------------------------------------*/
+
 
 .categories {
     display: flex;
@@ -208,6 +232,8 @@ button.delete {
     gap: 0.5em;
     padding: 0;
 }
+
+
 
 .category {
     background: var(--category-backgr);
@@ -282,6 +308,8 @@ button.delete {
     color: var(--category-text);
 }
 
+
+/*----------------------------------------------------------------------*/
 
 
 .item {
@@ -365,6 +393,8 @@ button.delete {
 }
 
 
+/*----------------------------------------------------------------------*/
+
 
 .item-check {
     font-size: 1em;
@@ -374,8 +404,23 @@ button.delete {
 }
 
 .item-check > .info {
+    position: relative;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.revisions > li + li .info::before {
+    content: '';
+    position: absolute;
+    height: 0.2em;
+    left: 0;
+    right: 1em;
+    top: 0;
+    border-top: 1px var(--item-detail) solid;
+    border-radius: 0.5em;
+
 }
 
 .item-check .status {
@@ -384,51 +429,85 @@ button.delete {
 
 .item-check > .bar {
     position: relative;
-    padding: 1.0em 0;
+    padding: 1.5em 0;
 }
+
 
 .revisions > li + li .item-check .bar::before {
     content: '';
     position: absolute;
     z-index: 0;
-    top: -1.1em; /* half the height */
+    top: -1.2em; /* half the height */
     left: 50%;
-    width: 0.3em;
-    height: 2.2em; /* should be larger than twice the size of the padding*/
-    margin-left: -0.15em; /* half the width */
+    width: 0.4em;
+    height: 2.4em; /* should be larger than twice the size of the padding*/
+    margin-left: -0.2em; /* half the width */
     background: var(--item-check-bar-scheduled);
 }
-
-.item-check .bar .outer {
+.item-check .circle {
     position: relative;
     z-index: 1;
-    padding: 0.2em;
-    border: 0.3em var(--item-check-bar-scheduled) solid;
+    padding: 0.25em;
+    border: 0.4em var(--item-check-bar-scheduled) solid;
     border-radius: 50%;
+    transition: transform 0.05s ease-out;
 }
 
 .revisions > li + li .item-check[status="today"] .bar::before {
     background-color: var(--item-check-bar-today);
 }
-.item-check[status="today"] .bar .outer {
+.item-check[status="today"] .circle {
     border-color: var(--item-check-bar-today);
 }
 
 .revisions > li + li .item-check[status="pending"] .bar::before {
     background-color: var(--item-check-bar-pending);
 }
-.item-check[status="pending"] .bar .outer {
+.item-check[status="pending"] .circle {
     border-color: var(--item-check-bar-pending);
 }
 
+.revisions > li + li .item-check[status="completed"] .bar::before {
+    background-color: var(--item-check-bar-completed);
+}
+.item-check[status="completed"] .circle {
+    border-color: var(--item-check-bar-completed);
+}
 
+.item-check[clickable=true] {
+    cursor: pointer;
+}
+.item-check[clickable=true] .circle:hover,
+.item-check[clickable=true] .circle:active {
+    transform: scale(1.2);
+}
+
+.item-check .circle .check-icon {
+    font-size: 1.4em;
+    display: none;
+}
+.item-check[clickable=true] .circle:hover .check-icon,
+.item-check[clickable=true] .circle:active .check-icon {
+    display: initial;
+}
+
+.item-check[status='completed'] .circle .check-icon {
+    display: initial;
+    border-color: var(--item-check-bar-completed);
+}
 
 .item-check .bar .inner {
-    background: var(--item-check-bar-center);
-    width: 2em;
-    height: 2em;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    width: 2.5em;
+    height: 2.5em;
     border-radius: 50%;
+    background: var(--item-check-bar-center);
 }
+
+
+/*----------------------------------------------------------------------*/
 
 
 @media screen and (max-width: 480px) {
