@@ -435,6 +435,7 @@ let categories = {
 
 
     load() {
+        const startTime = Date.now();
         const data = JSON.parse(
             window.localStorage.getItem('categories') || '[]'
         );
@@ -459,7 +460,8 @@ let categories = {
             const category = create(categoryData);
             this.add(category);
         }
-        console.log(`Loaded items from storage.`);
+        const elapsed = Date.now() - startTime;
+        console.log(`Loaded items from storage. Took ${Date.now() - startTime}ms.`);
     },
     
     save() {
