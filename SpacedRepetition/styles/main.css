@@ -1,27 +1,27 @@
 :root {
     --red: #fa5353;
+    --light-red: #ffa0a0;
+    --orange: #ff571f;
+    --text: #060312;
+    --text-contrast: #f0f0f0;
+    --status-pending: #ffb648;
+    --status-completed: #48ff9a;
+    --status-today: #4869ff;
+    --status-scheduled: #8848ff;
     --background: #ffbf47;
     --delete-button: #d1d1d1;
-    --text-focus: #f0f0f0;
-    --text: #060312;
     --placeholder-text: #211749;
     --item-backgr: #fafafa;
     --item-detail: #cccccc;
     --item-unchecked: #ffffff;
     --item-check-bar-center: #e2e2e2;
-    --item-check-bar-pending: #ffb648;
-    --item-check-bar-completed: #48ff9a;
-    --item-check-bar-today: #4869ff;
-    --item-check-bar-scheduled: #8848ff;
     --category-backgr: #f6f6f6;
     --category-text: #5a5a5a;
-    --button-color: #ff571f;
-    --button-hover: #ffffff;
+    --button-hover: #ffdbd1;
 }
 
 
 /*----------------------------------------------------------------------*/
-
 
 * {
     box-sizing: border-box;
@@ -38,20 +38,8 @@ body {
     font-family: 'Rubik', sans-serif;
 }
 
-button {
-    font-family: inherit;
-    cursor: pointer;
-    background: none;
-    border: none;
-    outline: none;
-    color: inherit;
-    overflow: visible;
-}
-
 ul {
     list-style: none;
-    margin: 0;
-    padding: 1em;
 }
 
 input {
@@ -60,7 +48,6 @@ input {
     line-height: 1.15;
     background: none;
     overflow: visible;
-    margin: 0;
 }
 
 input::placeholder {
@@ -74,6 +61,67 @@ a, a:hover, a:focus, a:active {
     cursor: pointer;
 }
 
+button {
+    font-family: inherit;
+    cursor: pointer;
+    background: none;
+    border: none;
+    outline: none;
+    color: inherit;
+    overflow: visible;
+}
+
+button {
+    font-size: 1em;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1em;
+    color: var(--text);
+    padding: 0.25em;
+    border: 2px solid;
+    border-radius: 0.2em;
+    border-color: var(--text);
+    transition: 0.2s ease-in-out;
+    transition-property: color, border-color, background-color;
+}
+button:hover,
+button:active
+button:focus {
+    color: var(--text-contrast);
+    background: var(--text);
+}
+
+button.red {
+    color: var(--red);
+    border-color: var(--red);
+}
+button.red:hover,
+button.red:active,
+button.red:focus {
+    color: var(--text-contrast);
+    background: var(--red);
+}
+
+button.orange {
+    color: var(--orange);
+    border-color: var(--orange);
+}
+button.orange:hover,
+button.orange:active,
+button.orange:focus {
+    color: var(--text-contrast);
+    background: var(--orange);
+}
+
+
+button.delete {
+    display: inline-block;
+    line-height: 0.5em;
+    font-family: 'Arial', sans-serif;
+    padding-bottom: 0.42em;
+    text-transform: lowercase;
+}
 
 /*----------------------------------------------------------------------*/
 
@@ -96,66 +144,33 @@ a, a:hover, a:focus, a:active {
     border-bottom: 0.25em var(--item-detail) solid;
     border-right: 0.25em var(--item-detail) solid;
     transform: translateY(-0.1em) rotate(45deg);
-
+    
 }
-
-button.delete {
-    font-size: 0.75em;
-    position: absolute;
-    right: 0;
-    top: 0;
-    font-weight: 700;
-    color: #fff;
-    width: 1.25em;
-    height: 1.25em;
-    border-radius: 25%;
-    background: var(--delete-button);
-}
-
 
 /*----------------------------------------------------------------------*/
 
 
-.content-wrap {
+.page-wrap {
     display: grid;
     justify-content: center;
     align-items: center;
 }
 
-.content {
+.page-content {
     display: flexbox;
-    box-sizing: border-box;
     width: 100vw;
-    max-width: 1000px;
+    max-width: 48rem;
     padding: 1em;
 }
 
 
 
-.content > .top {
+.page-content > .top {
     display: flex;
     flex-direction: row;
     gap: 0.3em;
     justify-content: center;
     padding: 1em 0.5em;
-}
-
-.content > .top button {
-    color: var(--button-color);
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 0.25em 0.5em;
-    border: 0.1em solid;
-    border-radius: 0.2em;
-    transition: 0.3s ease-in-out;
-    transition-property: color, border-color;
-}
-
-.content > .top button:hover,
-.content > .top button:focus {
-    color: var(--button-hover);
-    border-color: var(--button-hover);
 }
 
 
@@ -202,19 +217,6 @@ button.delete {
     to {opacity: 1}
 }
 
-.modal button {
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: capitalize;
-    padding: 0.25em 1em;
-    border: 0.1em solid;
-    border-radius: 0.2em;
-}
-
-.modal button.cancel {
-    color: var(--red);
-}
-
 .modal input {
     font-size: 1rem;
     padding: 0.25em 0.5em;
@@ -236,6 +238,7 @@ button.delete {
 
 
 .category {
+    position: relative;
     background: var(--category-backgr);
     box-shadow: 3px 3px 10px #06031249;
     border-radius: 0.5em;
@@ -246,28 +249,41 @@ button.delete {
 
 
 .category > .head {
-    font-size: 1.2em;
-    position: relative;
-    color: var(--category-text);
+    display: flex;
+    flex-direction: row;
 }
 
 .category .expand {
-    display: block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-grow: 1;
+    padding-right: 0.5em;
+    min-width: 0;
+    overflow: hidden;
 }
 
+.category.active > .head > .expand {
+    white-space: normal;
+}
 
 .category .name {
+    font-size: 1.2em;
     margin-left: 0.5em;
     text-transform: capitalize;
     
 }
 
 .category .arrow {
-    font-size: 1.3em;
+    font-size: 1.5em;
     transform: rotate(-45deg);
 }
-.category.active .arrow {
+.category.active > div > a > .arrow {
     transform: translate(0.1em, -0.1em) rotate(45deg);
+}
+
+.category .tools {
+    flex-shrink: 0;
+    font-size: 0.8em;
 }
 
 .category > .body {
@@ -278,7 +294,7 @@ button.delete {
 
 .category.active > .body {
     margin-top: 0.5em;
-    padding-top: 0.5em;
+    padding: 0.5em 0.5em;
     height: auto;
 }
 .category.active > .body::before {
@@ -295,7 +311,8 @@ button.delete {
     display: flex;
     flex-direction: column;
     gap: 0.5em;
-    padding: 0.5em;
+    overflow: visible;
+    padding-bottom: 0.6em;
 }
 .category .items:empty {
     padding: 0;
@@ -307,6 +324,44 @@ button.delete {
     font-size: 0.75rem;
     color: var(--category-text);
 }
+
+/*----------------------------------------------------------------------*/
+
+/*NESTED CATEGORIES*/
+
+.category .category {
+    background: none;
+    box-shadow: none;
+    padding: 0.5em 0;
+}
+
+.category .category.active > .body {
+    margin-top: 0.5em;
+    padding: 0.5em 0 0 0.5em;
+    border-left: 1px var(--item-detail) solid;
+
+}
+
+.category .category.active > .body::before {
+    border-top: none;
+}
+
+.category .category .items > li.category-wrap + li.category-wrap .category::before {
+    content: '';
+    position: absolute;
+    height: 0.2em;
+    left: 0;
+    right: 0;
+    top: 0;
+    border-top: 1px var(--item-detail) solid;
+    border-radius: 0.5em;
+}
+
+
+.category .category .item {
+    margin-right: 0.6em;
+}
+
 
 
 /*----------------------------------------------------------------------*/
@@ -327,35 +382,55 @@ button.delete {
     to {opacity: 1;}
 }
 
-.item .content {
+.item > .content {
     max-width: 100%;
-    padding: 0.5em;
+    padding: 0.5em 0.5em 0.25em;
 }
 
 .item .head {
     position: relative;
-    padding-bottom: 0.5em;
-} 
+    display: flex;
+    flex-direction: row;
+    padding-bottom: 0.2em;
+}
 
-.item .head > .title {
-    font-size: 1.25rem;
-    text-transform: capitalize;
+.item .head > .info {
     text-overflow: ellipsis;
     white-space: nowrap;
-    display: block;
-    max-width: 100%;
+    flex-grow: 1;
+    padding-right: 0.5em;
+    min-width: 0;
     overflow: hidden;
-    margin-bottom: 0.4em;
+}
+
+.item.active .head > .info {
+    white-space: normal;
+}
+
+.item .head .title {
+    font-size: 1.25rem;
+    text-transform: capitalize;
+}
+
+.item .head > .tools {
+    flex-shrink: 0;
 }
 
 
 .item .body {
+    display: flex;
+    flex-direction: row;
     font-size: 0.8em;
     overflow: hidden;
     max-height: 0;
 }
 .item.active .body {
     max-height: 100vh;
+    padding: 0.5em;
+}
+
+.item .body > .details {
+    flex-grow: 1;
 }
 
 .item .bottom {
@@ -395,6 +470,9 @@ button.delete {
 
 /*----------------------------------------------------------------------*/
 
+.item .body > .revisions {
+    padding: 0;
+}
 
 .item-check {
     font-size: 1em;
@@ -406,9 +484,10 @@ button.delete {
 .item-check > .info {
     position: relative;
     display: flex;
+    flex-grow: 1;
     flex-direction: column;
     justify-content: center;
-    flex-grow: 1;
+    min-width: 8em;
 }
 
 .revisions > li + li .info::before {
@@ -416,7 +495,7 @@ button.delete {
     position: absolute;
     height: 0.2em;
     left: 0;
-    right: 1em;
+    right: 0;
     top: 0;
     border-top: 1px var(--item-detail) solid;
     border-radius: 0.5em;
@@ -429,7 +508,7 @@ button.delete {
 
 .item-check > .bar {
     position: relative;
-    padding: 1.5em 0;
+    padding: 0.8em 0;
 }
 
 
@@ -437,41 +516,41 @@ button.delete {
     content: '';
     position: absolute;
     z-index: 0;
-    top: -1.2em; /* half the height */
+    top: -0.6em; /* half the height */
     left: 50%;
     width: 0.4em;
-    height: 2.4em; /* should be larger than twice the size of the padding*/
+    height: 1.2em; /* should be larger than twice the size of the padding*/
     margin-left: -0.2em; /* half the width */
-    background: var(--item-check-bar-scheduled);
+    background: var(--status-scheduled);
 }
 .item-check .circle {
     position: relative;
     z-index: 1;
     padding: 0.25em;
-    border: 0.4em var(--item-check-bar-scheduled) solid;
+    border: 0.4em var(--status-scheduled) solid;
     border-radius: 50%;
     transition: transform 0.05s ease-out;
 }
 
 .revisions > li + li .item-check[status="today"] .bar::before {
-    background-color: var(--item-check-bar-today);
+    background-color: var(--status-today);
 }
 .item-check[status="today"] .circle {
-    border-color: var(--item-check-bar-today);
+    border-color: var(--status-today);
 }
 
 .revisions > li + li .item-check[status="pending"] .bar::before {
-    background-color: var(--item-check-bar-pending);
+    background-color: var(--status-pending);
 }
 .item-check[status="pending"] .circle {
-    border-color: var(--item-check-bar-pending);
+    border-color: var(--status-pending);
 }
 
 .revisions > li + li .item-check[status="completed"] .bar::before {
-    background-color: var(--item-check-bar-completed);
+    background-color: var(--status-completed);
 }
 .item-check[status="completed"] .circle {
-    border-color: var(--item-check-bar-completed);
+    border-color: var(--status-completed);
 }
 
 .item-check[clickable=true] {
@@ -486,22 +565,21 @@ button.delete {
     font-size: 1.4em;
     display: none;
 }
-.item-check[clickable=true] .circle:hover .check-icon,
-.item-check[clickable=true] .circle:active .check-icon {
+.item-check[clickable=true] .circle:hover .check-icon {
     display: initial;
 }
 
 .item-check[status='completed'] .circle .check-icon {
     display: initial;
-    border-color: var(--item-check-bar-completed);
+    border-color: var(--status-completed);
 }
 
 .item-check .bar .inner {
     display: grid;
     justify-content: center;
     align-items: center;
-    width: 2.5em;
-    height: 2.5em;
+    width: 2.25em;
+    height: 2.25em;
     border-radius: 50%;
     background: var(--item-check-bar-center);
 }
@@ -511,7 +589,7 @@ button.delete {
 
 
 @media screen and (max-width: 480px) {
-    .content > .top {
+    .page-content > .top {
         flex-direction: column;
     }
 }

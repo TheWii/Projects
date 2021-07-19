@@ -1,5 +1,5 @@
 // revision dates since item creation(in days)
-let defaultDates = [
+let defaultRevisions = [
     0,
     1,
     2,
@@ -7,7 +7,6 @@ let defaultDates = [
     4
 ].map(i => i * 24);
 
-const btnNewItem = document.querySelector('button.new-item');
 const btnNewCategory = document.querySelector('button.new-category');
 
 //---------------------------------------------------------------------------//
@@ -30,7 +29,7 @@ class Category {
         this.name = name;
         this.parent = null;
         this.expanded = false;
-        this.items = [];
+        this.children = [];
         this.createElement();
     }
 
@@ -44,6 +43,12 @@ class Category {
         });
         element.querySelector('.delete').addEventListener('click', e => {
             this.delete();
+        });
+        element.querySelector('.new-item').addEventListener('click', e => {
+            addItem.open(this);
+        });
+        element.querySelector('.new-section').addEventListener('click', e => {
+            addCategory.open(this);
         });
 
         this.element = element;
@@ -64,30 +69,39 @@ class Category {
     shrink() {
         this.expanded = false;
         this.element.querySelector('.category').classList.remove('active');
-        for (const item of this.items) item.shrink();
+        for (const child of this.children) child.shrink();
     }
 
 
-    add(...items) {
-        for (const item of items) {
-            if (!(item instanceof Item)) continue;
-            if (item.category instanceof Category) continue;
-            this.items.push(item);
-            this.element.querySelector('.items').appendChild(item.element);
-            item.parent = this;
+    add(...children) {
+        for (const child of children) {
+            if (!(child instanceof Item) && !(child instanceof Category)) continue;
+            if (child.parent instanceof Category) continue;
+            this.children.push(child);
+            this.element.querySelector('.items').appendChild(child.element);
+            child.parent = this;
         }
-        console.log(`Added ${items.length} item(s) to category ${this.name}.`);
+        console.log(`Added ${children.length} item(s) to category ${this.name}.`);
     }
 
-    remove(...items) {
-        for (const item of items) {
-            if (!(item instanceof Item)) continue;
-            const i = this.items.indexOf(item);
-            this.items.splice(i, 1);
-            this.element.querySelector('.items').removeChild(item.element);
-            item.parent = null
+    remove(...children) {
+        for (const child of children) {
+            if (!(child instanceof Item) && !(child instanceof Category)) continue;
+            const i = this.children.indexOf(child);
+            this.children.splice(i, 1);
+            this.element.querySelector('.items').removeChild(child.element);
+            child.parent = null
         }
-        console.log(`Removed ${items.length} item(s) from category ${this.name}`);
+        console.log(`Removed ${children.length} item(s) from category ${this.name}`);
+    }
+
+    getData() {
+        return {
+            name: this.name,
+            children: this.children.map(
+                child => child.getData()
+            )
+        };
     }
 
     delete() {
@@ -98,11 +112,18 @@ class Category {
 
 
 class Item {
-    constructor(title, dates=null, createdAt=null) {
-        dates = dates ? dates : defaultDates;
-        this.revisions =  dates.map(time =>
-            new Revision(this, time)
-        );
+    constructor(title, revisions=null, createdAt=null) {
+        revisions = revisions ? revisions : defaultRevisions;
+        this.revisions = [];
+        //console.log(`Creating item with revisions: ${revisions}`);
+        for (const revision of revisions) {
+            //if(typeof revision === 'number') console.log(`Creating item that is a number, time: ${revision}`);
+            //else console.log(`Creating revision, Time: ${revision.time} hours. Completed: ${revision.completed}`);
+            this.revisions.push( typeof revision === 'number' ?
+                new Revision(this, revision, false) :
+                new Revision(this, revision.time, revision.completed)
+            )
+        }
         this.title = title;
         this.createdAt = createdAt ? createdAt : Date.now();
         this.expanded = false;
@@ -157,6 +178,16 @@ class Item {
     shrink() {
         this.expanded = false;
         this.element.querySelector('.item').classList.remove('active');
+    }
+
+    getData() {
+        return {
+            title: this.title,
+            createdAt: this.createdAt,
+            revisions: this.revisions.map(
+                revision => revision.getData()
+            )
+        };
     }
 
     delete() {
@@ -260,6 +291,13 @@ class Revision {
         }
         this.setStatus('completed');
     }
+
+    getData() {
+        return {
+            time: this.time,
+            completed: this.completed
+        }
+    }
 }
 
 
@@ -268,19 +306,20 @@ class Revision {
 let addItem = {
     element: document.querySelector('.modal.add-item'),
     inpTitle: document.querySelector('.modal.add-item .title'),
-    inpCategory: document.querySelector('.modal.add-item .inp-category'),
     btnAdd: document.querySelector('.modal.add-item .add'),
     btnCancel: document.querySelector('.modal.add-item .cancel'),
     
 
-    open() {
+    open(parent) {
+        this.parent = parent;
         this.element.classList.add('visible');
         this.inpTitle.focus();
     },
     
     close() {
-        this.inpTitle.value = '';
+        this.parent = null;
         this.element.classList.remove('visible');
+        this.inpTitle.value = '';
     },
 
 
@@ -290,27 +329,17 @@ let addItem = {
             return;
         }
         const title = this.inpTitle.value.trim();
-        const categoryName = this.inpCategory.value.trim();
-        let category = categories.get(categoryName);
         const item = categories.createItem(title);
-        category.expand();
-        category.add(item);
+        this.parent.expand();
+        this.parent.add(item);
         this.close();
     },
     
     valid() {
+        if (this.parent == null) return false;
         const title = this.inpTitle.value.trim();
-        const category = this.inpCategory.value.trim();
         if (title === '') {
             console.log("Failed to create a new item. A title must be given.");
-            return false;
-        }
-        if (category === '') {
-            console.log("Failed to create a new item. A category must be given.");
-            return false;
-        }
-        if (!categories.get(category)) {
-            console.log("Failed to create a new item. Such category doesn't exist.");
             return false;
         }
         return true;
@@ -322,15 +351,18 @@ let addCategory = {
     inpName: document.querySelector('.modal.add-category .name'),
     btnAdd: document.querySelector('.modal.add-category .add'),
     btnCancel: document.querySelector('.modal.add-category .cancel'),
+    parent: null,
     
 
-    open() {
+    open(parent) {
+        this.parent = parent;
         this.element.classList.add('visible');
         this.inpName.focus();
     },
     
     close() {
         this.inpName.value = '';
+        this.parent = null;
         this.element.classList.remove('visible');
     },
 
@@ -339,7 +371,8 @@ let addCategory = {
         if (!this.valid()) return;
         const name = this.inpName.value.trim().toLowerCase();
         const category = categories.createCategory(name);
-        categories.add(category);
+        if (this.parent instanceof Category) this.parent.expand();
+        this.parent.add(category);
         this.close();
     },
     
@@ -405,34 +438,34 @@ let categories = {
         const data = JSON.parse(
             window.localStorage.getItem('categories') || '[]'
         );
-        //console.log(data);
-        for (let categoryData of data) {
-            const items = categoryData.items.map(itemData =>
-                this.createItem(
-                    itemData.title,
-                    null,
-                    itemData.createdAt //- (86400000 * 4)
-                )
+        console.log(data);
+
+        function create(object) {
+            if (object.children) {
+                const category = categories.createCategory(object.name);
+                const children = object.children.map(
+                    child => create(child)
+                );
+                category.add(...children);
+                return category;
+            }
+            return categories.createItem(
+                object.title,
+                object.revisions,
+                object.createdAt //- (86400000 * 4)
             );
-            const category = this.createCategory(categoryData.name);
+        }
+        for (const categoryData of data) {
+            const category = create(categoryData);
             this.add(category);
-            category.add(...items);
         }
         console.log(`Loaded items from storage.`);
     },
     
     save() {
-        const data = this.categories.map(category => ({
-            name: category.name,
-            items: category.items.map(item => ({
-                title: item.title,
-                createdAt: item.createdAt,
-                dates: item.revisions.map(revision => ({
-                    time: revision.time,
-                    completed: revision.completed
-                }))
-            })),
-        }));
+        const data = this.categories.map(
+            category => category.getData()
+        );
         const json = JSON.stringify(data);
         window.localStorage.setItem('categories', json);
         console.log(`Saved items to storage.`);
@@ -454,11 +487,6 @@ let categories = {
 
 //---------------------------------------------------------------------------//
 
-btnNewItem.addEventListener("click", e => {
-    e.preventDefault();
-    addItem.open();
-});
-
 addItem.btnAdd.addEventListener("click", e => {
     e.preventDefault();
     addItem.clicked();
@@ -472,7 +500,7 @@ addItem.btnCancel.addEventListener("click", e => {
 
 btnNewCategory.addEventListener("click", e => {
     e.preventDefault();
-    addCategory.open();
+    addCategory.open(categories);
 });
 
 addCategory.btnAdd.addEventListener("click", e => {
