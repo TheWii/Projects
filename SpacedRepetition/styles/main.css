@@ -4,6 +4,7 @@
     --orange: #ff571f;
     --text: #060312;
     --text-contrast: #f0f0f0;
+    --text-selected: #ff8133;
     --status-pending: #ffb648;
     --status-completed: #48ff9a;
     --status-today: #4869ff;
@@ -45,7 +46,7 @@ ul {
 input {
     font-family: inherit;
     font-size: 100%;
-    line-height: 1.15;
+    line-height: 1rem;
     background: none;
     overflow: visible;
 }
@@ -57,7 +58,7 @@ input::placeholder {
 
 a, a:hover, a:focus, a:active {
     text-decoration: none;
-    color: inherit;
+    color: initial;
     cursor: pointer;
 }
 
@@ -71,19 +72,26 @@ button {
     overflow: visible;
 }
 
+.red, .red:focus, .red:hover, .red:active {
+    color: var(--red);
+}
+.orange, .orange:focus, .orange:hover, .orange:active {
+    color: var(--orange);
+}
+
 button {
     font-size: 1em;
     font-weight: 700;
     text-transform: uppercase;
     text-align: center;
-    line-height: 1em;
+    line-height: 1.2rem;
     color: var(--text);
     padding: 0.25em;
     border: 2px solid;
     border-radius: 0.2em;
     border-color: var(--text);
-    transition: 0.2s ease-in-out;
-    transition-property: color, border-color, background-color;
+    /*transition: 0.2s ease-in-out;
+    transition-property: color, border-color, background-color;*/
 }
 button:hover,
 button:active
@@ -122,6 +130,28 @@ button.delete {
     padding-bottom: 0.42em;
     text-transform: lowercase;
 }
+button.show-more {
+    width: 1.5em;
+    height: 1.5em;
+    border: 2px rgba(0, 0, 0, 0) solid;
+    border-radius: 50%;
+}
+button.show-more:focus,
+button.show-more:hover {
+    border: 2px var(--text) solid;
+    color: var(--text);
+    background: none;
+    text-align: center;
+}
+button.show-more:active {
+    color: var(--text-selected);
+    border-color: var(--text-selected);
+}
+button.show-more span {
+    display: inline-block;
+    pointer-events: none;
+    transform: translate(0.3em, -0.15em) rotate(90deg);
+}
 
 /*----------------------------------------------------------------------*/
 
@@ -154,6 +184,55 @@ button.delete {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;       
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+.dropdown .menu {
+    font-size: 0.8em;
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 100%;
+    z-index: 1;
+    min-width: 18ch;
+    background: var(--item-backgr);
+    box-shadow: 3px 3px 10px #06031249;
+    border-radius: 5px;
+}
+.dropdown.active .menu {
+    display: inline-block;
+    animation-name: dropdown-appear;
+    animation-duration: 0.2s;
+}
+@keyframes dropdown-appear {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+.dropdown .menu > li {
+    position: relative;
+}
+.dropdown .menu > li a {
+    padding: 0.3em 0.5em;
+    display: block;
+}
+.dropdown .menu > li a:hover,
+.dropdown .menu > li a:focus {
+    transform: translateX(0.2em);
+}
+.dropdown .menu > li:active {
+    background: #0000001a;
+}
+.dropdown .menu > li + li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0.3em;
+    right: 0.3em;
+    border-top: 1px var(--item-detail) solid;
 }
 
 /*----------------------------------------------------------------------*/
@@ -208,13 +287,36 @@ button.delete {
 .modal .content {
     position: relative;
     top: 5em;
-    padding: 2em 3em;
+    padding: 1em;
     height: fit-content;
     border-radius: 0.5em;
     box-shadow: 3px 3px 10px #06031249;
     background: var(--item-backgr);
     animation-name: modal-container;
     animation-duration: 0.4s;
+}
+.modal h1 {
+    font-size: 1em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 0.5em;
+}
+
+.modal form {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+.modal form .inputs {
+    min-width: 15em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.modal form .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
 }
 
 @keyframes modal-container {
@@ -307,6 +409,7 @@ button.delete {
 
 .category.active > .body {
     padding: 1em 0.5em 0.5em 0.5em;
+    overflow: visible;
     height: auto;
 }
 .category.active > .body::before {
@@ -337,6 +440,7 @@ button.delete {
     color: var(--category-text);
 }
 
+
 /*----------------------------------------------------------------------*/
 
 /*NESTED CATEGORIES*/
@@ -355,33 +459,15 @@ button.delete {
     margin-top: 0;
     padding: 1em 0 0 1em;
     border-left: 1px var(--item-detail) solid;
-
 }
 
 .category .category.active > .body::before {
     left: 0.5em;
+    top: -0.1em;
     right: none;
     height: 0.8em;
     border: none;
 }
-/*
-.category .category .items > li.category-wrap + li.category-wrap .category::before {
-    content: '';
-    position: absolute;
-    height: 0.2em;
-    left: 0;
-    right: 0;
-    top: 0;
-    border-top: 1px var(--item-detail) solid;
-    border-radius: 0.5em;
-}
-*/
-
-.category .category .item {
-    margin-left: 0.6em;
-    margin-right: 0.6em;
-}
-
 
 
 /*----------------------------------------------------------------------*/
@@ -389,7 +475,6 @@ button.delete {
 
 .item {
     font-size: 1em;
-    color: var(--text);
     background: var(--item-backgr);
     border-radius: 0.5em;
     box-shadow: 3px 3px 10px #06031249;
@@ -442,10 +527,11 @@ button.delete {
     flex-direction: row;
     font-size: 0.8em;
     overflow: hidden;
-    max-height: 0;
+    height: 0;
+    color: var(--text);
 }
 .item.active .body {
-    max-height: 100vh;
+    height: auto;
     padding: 0.5em;
 }
 
@@ -489,10 +575,6 @@ button.delete {
 
 
 /*----------------------------------------------------------------------*/
-
-.item .body > .revisions {
-    padding: 0;
-}
 
 .item-check {
     font-size: 1em;
@@ -612,13 +694,11 @@ button.delete {
     .category .category.active > .body {
         padding-left: 0;
         border: none;
-    
     }
     .category .category.active > .body::before {
         border-left: 1px var(--item-detail) solid;
         border-radius: 0;
     }
-
     .category .category.active::after {
         content: '';
         position: absolute;
@@ -630,7 +710,27 @@ button.delete {
 }
 
 @media screen and (max-width: 500px) {
+    .modal form {
+        flex-direction: column;
+    }
+
+    .page-content {
+        padding: 0.3em;
+    }
+    
     .page-content > .top {
         flex-direction: column;
     }
+
+    .item .body {
+        flex-direction: column;
+    }
+
+    .item-check {
+        justify-content: center;
+    }
+    .item-check > .info {
+        flex-grow: 0;
+    }
+
 }

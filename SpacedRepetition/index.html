@@ -29,10 +29,16 @@
 
     <div class="modal add-item">
         <div class="content">
-            <form autocomplete="off">        
-                <input class="title" type="text" placeholder="Title">
-                <button class="add" type="submit">ADD</button>
-                <button class="cancel red" type="button">CANCEL</button>
+            <h1>New Item</h1>
+            <form autocomplete="off">
+                <div class="inputs">
+                    <input class="title" type="text" placeholder="Title">
+                    <input class="start-date" type="text" placeholder="Starting date(DD/MM/YYYY)">
+                </div>
+                <div class="buttons">
+                    <button class="add" type="submit">ADD</button>
+                    <button class="cancel red" type="button">CANCEL</button>
+                </div>
             </form>
         </div>
     </div>
@@ -42,12 +48,13 @@
             <form autocomplete="off">        
                 <input class="name" type="text" placeholder="Name">
                 <button class="add" type="submit">ADD</button>
-                <button class="cancel" type="button">CANCEL</button>
+                <button class="cancel red" type="button">CANCEL</button>
             </form>
         </div>
     </div>
 
-    <script src="scripts/main.js"></script>
+    <script type="module" src="scripts/dropdown.js"></script>
+    <script type="module" src="scripts/main.js"></script>
 </body>
 
 </html>

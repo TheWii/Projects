@@ -1,3 +1,5 @@
+
+
 // revision dates since item creation(in days)
 let defaultRevisions = [
     0,
@@ -13,6 +15,7 @@ const btnNewCategory = document.querySelector('button.new-category');
 
 let itemMarkup = null;
 let categoryMarkup = null;
+let itemCheckMarkup = null;
 
 async function init() {
     itemMarkup = await fetch('markup/item.html').then(r => r.text());
@@ -20,7 +23,6 @@ async function init() {
     itemCheckMarkup = await fetch('markup/item_check.html').then(r => r.text());
     categories.init();
 }
-
 
 //---------------------------------------------------------------------------//
 
@@ -41,13 +43,13 @@ class Category {
         element.querySelector('a.expand').addEventListener('click', e => {
             this.expanded ? this.shrink() : this.expand();
         });
-        element.querySelector('.delete').addEventListener('click', e => {
+        element.querySelector('.dropdown .delete').addEventListener('click', e => {
             this.delete();
         });
-        element.querySelector('.new-item').addEventListener('click', e => {
+        element.querySelector('.dropdown .new-item').addEventListener('click', e => {
             addItem.open(this);
         });
-        element.querySelector('.new-section').addEventListener('click', e => {
+        element.querySelector('.dropdown .new-section').addEventListener('click', e => {
             addCategory.open(this);
         });
 
