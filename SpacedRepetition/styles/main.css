@@ -131,6 +131,7 @@ button.delete {
     text-transform: lowercase;
 }
 button.show-more {
+    font-size: 1em;
     width: 1.5em;
     height: 1.5em;
     border: 2px rgba(0, 0, 0, 0) solid;
@@ -148,9 +149,10 @@ button.show-more:active {
     border-color: var(--text-selected);
 }
 button.show-more span {
+    font-size: 1em;
     display: inline-block;
     pointer-events: none;
-    transform: translate(0.3em, -0.15em) rotate(90deg);
+    transform: translate(45%, -20%) rotate(90deg);
 }
 
 /*----------------------------------------------------------------------*/
@@ -191,11 +193,11 @@ button.show-more span {
     display: inline-block;
 }
 .dropdown .menu {
-    font-size: 0.8em;
+    font-size: 0.8rem;
     display: none;
     position: absolute;
     top: 0;
-    right: 100%;
+    right: calc(100% + 0.2rem);
     z-index: 1;
     min-width: 18ch;
     background: var(--item-backgr);
@@ -536,6 +538,8 @@ button.show-more span {
 }
 
 .item .body > .details {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
 }
 

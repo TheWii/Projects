@@ -114,7 +114,7 @@ class Category {
 
 
 class Item {
-    constructor(title, revisions=null, createdAt=null) {
+    constructor(title, revisions=null, startAt=null, createdAt=null) {
         revisions = revisions ? revisions : defaultRevisions;
         this.revisions = [];
         //console.log(`Creating item with revisions: ${revisions}`);
@@ -128,6 +128,7 @@ class Item {
         }
         this.title = title;
         this.createdAt = createdAt ? createdAt : Date.now();
+        this.startAt = startAt ? startAt : this.createdAt;
         this.expanded = false;
         this.parent = null;
         this.createElement();
@@ -150,9 +151,11 @@ class Item {
         this.updateElement();
     }
     updateElement() {
-        let date = new Date(this.createdAt);
         this.element.querySelector('.info .title').innerHTML = this.title;
-        this.element.querySelector('.created-at > .value').innerHTML = date.toLocaleDateString();
+        this.element.querySelector('.created-at > .value')
+            .innerHTML = new Date(this.createdAt).toLocaleDateString();
+        this.element.querySelector('.start-at > .value')
+            .innerHTML = new Date(this.startAt).toLocaleDateString();
         this.updateChecklist();
     }
 
@@ -186,6 +189,7 @@ class Item {
         return {
             title: this.title,
             createdAt: this.createdAt,
+            startAt: this.startAt,
             revisions: this.revisions.map(
                 revision => revision.getData()
             )
@@ -270,7 +274,7 @@ class Revision {
     }
 
     getTotalTime() {
-        return this.parent.createdAt + this.time * 3600000;
+        return this.parent.startAt + this.time * 3600000;
     }
 
     isClickable() {
@@ -308,6 +312,7 @@ class Revision {
 let addItem = {
     element: document.querySelector('.modal.add-item'),
     inpTitle: document.querySelector('.modal.add-item .title'),
+    inpStartDate: document.querySelector('.modal.add-item .start-date'),
     btnAdd: document.querySelector('.modal.add-item .add'),
     btnCancel: document.querySelector('.modal.add-item .cancel'),
     
@@ -326,12 +331,11 @@ let addItem = {
 
 
     clicked() {
-        if (!this.valid()) {
-            console.log("Invalid arguments.")
-            return;
-        }
+        if (!this.valid()) return;
         const title = this.inpTitle.value.trim();
-        const item = categories.createItem(title);
+        const start = this.inpStartDate.value.trim();
+        const startDate = start.length ? new Date(start).getTime() : null;
+        const item = categories.createItem(title, null, startDate);
         this.parent.expand();
         this.parent.add(item);
         this.close();
@@ -340,8 +344,14 @@ let addItem = {
     valid() {
         if (this.parent == null) return false;
         const title = this.inpTitle.value.trim();
+        const start = this.inpStartDate.value.trim();
+        console.log(`Date is: '${new Date(start).getTime()}'`);
         if (title === '') {
             console.log("Failed to create a new item. A title must be given.");
+            return false;
+        }
+        if (start.length && isNaN(new Date(start).getTime())) {
+            console.log("Failed to create a new item. Date input is invalid.");
             return false;
         }
         return true;
@@ -400,11 +410,12 @@ let categories = {
     categories: [],
     observer: null,
 
-    createItem(title, dates=null, createdAt=null) {
+    createItem(title, dates=null, startAt=null, createdAt=null) {
         return new Item(
             title,
-            dates=dates,
-            createdAt=createdAt
+            dates,
+            startAt,
+            createdAt
         );
     },
 
@@ -455,6 +466,7 @@ let categories = {
             return categories.createItem(
                 object.title,
                 object.revisions,
+                object.startAt,
                 object.createdAt //- (86400000 * 4)
             );
         }

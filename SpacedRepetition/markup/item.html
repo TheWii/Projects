@@ -7,17 +7,25 @@
             <div class="info">
                 <span class="title">{name}</span>
             </div>
-            <div class="tools">
-                <button class="delete red">x</button>
-            </div>
 
-    
+            <div class="tools">
+                <div class="dropdown">
+                    <button class="show-more"><span>...</span></button>
+                    <ul class="menu">
+                        <li>
+                            <a class="delete red" type="button">Delete</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        
         </div>
     
         <div class="body">
             
             <div class="details">
                 <span class="created-at">Created: <span class="value"></span></span>
+                <span class="start-at">Starts at: <span class="value"></span></span>
                 <span class="description"></span>
             </div>
             
