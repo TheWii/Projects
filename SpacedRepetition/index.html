@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Spaced Repetition</title>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
@@ -26,7 +26,6 @@
 
     </div>
 
-
     <div class="modal add-item">
         <div class="content">
             <h1>New Item</h1>
@@ -37,6 +36,22 @@
                 </div>
                 <div class="buttons">
                     <button class="add" type="submit">ADD</button>
+                    <button class="cancel red" type="button">CANCEL</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal edit-item">
+        <div class="content">
+            <h1>Edit Item</h1>
+            <form autocomplete="off">
+                <div class="inputs">
+                    <input class="title" type="text" placeholder="Title">
+                    <input class="start-date" type="text" placeholder="Starting date(MM/DD/YYYY)">
+                </div>
+                <div class="buttons">
+                    <button class="edit" type="submit">EDIT</button>
                     <button class="cancel red" type="button">CANCEL</button>
                 </div>
             </form>

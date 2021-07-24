@@ -26,6 +26,49 @@ async function init() {
 
 //---------------------------------------------------------------------------//
 
+const dates = {
+    months: [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ],
+    weekdays: [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday'
+    ],
+
+    format(dateObj, pattern='{month} {day}, {year}') {
+        const year = dateObj.getFullYear();
+        const monthIndex = dateObj.getMonth();
+        const month = this.months[monthIndex];
+        const day = dateObj.getDate();
+        const weekday = this.weekdays[dateObj.getDay()];
+        return pattern
+            .replace('{weekday}', weekday)
+            .replace('{day}', day)
+            .replace('{month}', month)
+            .replace('{month-num}', monthIndex+1)
+            .replace('{year}', year);
+    }
+}
+
+
+//---------------------------------------------------------------------------//
+
 class Category {
     constructor(name) {
         this.name = name;
@@ -64,6 +107,7 @@ class Category {
 
     expand() {
         if (this.expanded) return;
+        if (this.parent && this.parent.expand) this.parent.expand();
         this.expanded = true;
         this.element.querySelector('.category').classList.add('active');
     }
@@ -112,7 +156,6 @@ class Category {
     }
 }
 
-
 class Item {
     constructor(title, revisions=null, startAt=null, createdAt=null) {
         revisions = revisions ? revisions : defaultRevisions;
@@ -145,6 +188,8 @@ class Item {
         
         element.querySelector('.delete')
             .addEventListener('click', e => this.delete() );
+        element.querySelector('.edit')
+            .addEventListener('click', e => this.edit() );
             
         this.element = element;
         this.createChecklist();
@@ -175,7 +220,7 @@ class Item {
 
     expand() {
         if (this.expanded) return;
-        //for (const item of this.parent.items) item.shrink();
+        if (this.parent) this.parent.expand();
         this.expanded = true;
         this.element.querySelector('.item').classList.add('active');
     }
@@ -199,9 +244,11 @@ class Item {
     delete() {
         this.parent.remove(this);
     }
+    edit() {
+        if (!editItem.item) editItem.open(this);
+    }
 
 }
-
 
 class Revision {
     constructor(parent, time, completed=false) {
@@ -228,7 +275,7 @@ class Revision {
         let time = this.getTotalTime();
         const date = new Date(time);
         this.element.querySelector('.date')
-            .innerHTML = date.toLocaleDateString();
+            .innerHTML = dates.format(date);
 
         const status = this.getStatusByTime(time);
         this.setStatus(status);
@@ -257,7 +304,10 @@ class Revision {
     }
     
     getName(status) {
-        let days = (this.getTotalTime() - Date.now()) / 86400000;
+        const date = new Date(this.getTotalTime());
+        const now = new Date();
+        let days = (this.getTotalTime() - now.getTime()) / 86400000;
+        //console.log(`revision: ${this.getTotalTime()} | ${date.toLocaleString()}, now: ${now.getTime()} | ${now.toLocaleString()}, days: ${days}`);
         days = Math.ceil(Math.abs(days));
         switch (status) {
             case 'today': return 'Today';
@@ -331,32 +381,88 @@ let addItem = {
 
 
     clicked() {
-        if (!this.valid()) return;
-        const title = this.inpTitle.value.trim();
-        const start = this.inpStartDate.value.trim();
-        const startDate = start.length ? new Date(start).getTime() : null;
-        const item = categories.createItem(title, null, startDate);
+        const data = this.parse();
+        if (!data) return;
+        const item = categories.createItem(data.title, null, data.startAt);
         this.parent.expand();
         this.parent.add(item);
         this.close();
     },
     
-    valid() {
-        if (this.parent == null) return false;
+    parse() {
+        if (this.parent == null) return null;
         const title = this.inpTitle.value.trim();
+        if (!title.length) {
+            console.error("Failed to parse arguments for new item creation. A title must be given.");
+            return null;
+        }
         const start = this.inpStartDate.value.trim();
-        console.log(`Date is: '${new Date(start).getTime()}'`);
-        if (title === '') {
-            console.log("Failed to create a new item. A title must be given.");
-            return false;
+        const startTime = start.length ? new Date(start).setHours(23, 59, 59, 999) : null;
+        if (isNaN(startTime)) {
+            console.error("Failed to parse arguments for new item creation. Date input is invalid.");
+            return null;
         }
-        if (start.length && isNaN(new Date(start).getTime())) {
-            console.log("Failed to create a new item. Date input is invalid.");
-            return false;
-        }
-        return true;
-    },
+        return {
+            title: title,
+            startAt: startTime
+        };
+    }
 }
+
+let editItem = {
+    element: document.querySelector('.modal.edit-item'),
+    inpTitle: document.querySelector('.modal.edit-item .title'),
+    inpStartDate: document.querySelector('.modal.edit-item .start-date'),
+    btnEdit: document.querySelector('.modal.edit-item .edit'),
+    btnCancel: document.querySelector('.modal.edit-item .cancel'),
+    item: null,
+    
+
+    open(item) {
+        this.item = item;
+        this.inpTitle.value = item.title;
+        const date = new Date(item.startAt);
+        this.inpStartDate.value = dates.format(date);
+        this.element.classList.add('visible');
+    },
+    
+    close() {
+        this.item = null;
+        this.element.classList.remove('visible');
+        this.inpTitle.value = '';
+        this.inpStartDate.value = '';
+    },
+
+
+    clicked() {
+        const data = this.parse();
+        if (!data) return;
+        this.item.title = data.title;
+        if (data.startAt) this.item.startAt = data.startAt;
+        this.item.updateElement();
+        this.close();
+    },
+    
+    parse() {
+        if (this.item == null) return null;
+        const title = this.inpTitle.value.trim();
+        if (!title.length) {
+            console.log("Failed to parse arguments. Title input is blank.");
+            return null;
+        }
+        const start = this.inpStartDate.value.trim();
+        const startTime = start.length ? new Date(start).setHours(23, 59, 59, 999) : null;
+        if (isNaN(startTime)) {
+            console.log("Failed to parse arguments. Date input is invalid.");
+            return null;
+        }
+        return {
+            title: title,
+            startAt: startTime
+        };
+    }
+}
+
 
 let addCategory = {
     element: document.querySelector('.modal.add-category'),
@@ -422,15 +528,14 @@ let categories = {
     createCategory(name) {
         return new Category(name);
     },
-    
 
     add(category) {
         if (!(category instanceof Category)) return;
         this.categories.push(category);
         this.element.appendChild(category.element);
-        category.parent = this
+        category.parent = this;
     },
-    
+
     remove(category) {
         if (!(category instanceof Category)) return;
         const i = this.categories.indexOf(category);
@@ -511,6 +616,16 @@ addItem.btnAdd.addEventListener("click", e => {
 addItem.btnCancel.addEventListener("click", e => {
     e.preventDefault();
     addItem.close();
+});
+
+editItem.btnEdit.addEventListener("click", e => {
+    e.preventDefault();
+    editItem.clicked();
+});
+
+editItem.btnCancel.addEventListener("click", e => {
+    e.preventDefault();
+    editItem.close();
 });
 
 

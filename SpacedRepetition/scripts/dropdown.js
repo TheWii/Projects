@@ -4,7 +4,6 @@ const dropdown = {
     windowClick(event) {
         const target = event.target;
         if (target.matches('.dropdown button')) {
-            console.log("Clicked at button...");
             const element = target.parentElement;
             dropdown.clicked(element);
             dropdown.closeAll(element);
