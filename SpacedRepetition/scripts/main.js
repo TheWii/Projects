@@ -21,6 +21,10 @@ async function init() {
     categoryMarkup = await fetch('markup/category.html').then(r => r.text());
     itemCheckMarkup = await fetch('markup/item_check.html').then(r => r.text());
     categories.init();
+    addItem.init();
+    editItem.init();
+    addCategory.init();
+    editCategory.init();
 }
 
 //---------------------------------------------------------------------------//
@@ -94,11 +98,14 @@ class Category {
         element.querySelector('.dropdown .new-section').addEventListener('click', e => {
             addCategory.open(this);
         });
-        element.querySelector('.move-up').addEventListener('click', e => {
+        element.querySelector('.dropdown .move-up').addEventListener('click', e => {
             this.move(-1);
         });
-        element.querySelector('.move-down').addEventListener('click', e => {
+        element.querySelector('.dropdown .move-down').addEventListener('click', e => {
             this.move(1);
+        });
+        element.querySelector('.dropdown .edit').addEventListener('click', e => {
+            this.edit();
         });
 
 
@@ -179,6 +186,10 @@ class Category {
                 child => child.getData()
             )
         };
+    }
+
+    edit() {
+        editCategory.open(this);
     }
 
     delete() {
@@ -284,11 +295,12 @@ class Item {
         };
     }
 
+    edit() {
+        editItem.open(this);
+    }
+
     delete() {
         this.parent.remove(this);
-    }
-    edit() {
-        if (!editItem.item) editItem.open(this);
     }
 
 }
@@ -409,7 +421,17 @@ let addItem = {
     inpRepetitions: document.querySelector('.modal.add-item .repetitions'),
     btnAdd: document.querySelector('.modal.add-item .add'),
     btnCancel: document.querySelector('.modal.add-item .cancel'),
-    
+
+    init() {
+        this.btnAdd.addEventListener("click", e => {
+            e.preventDefault();
+            this.clicked();
+        });
+        this.btnCancel.addEventListener("click", e => {
+            e.preventDefault();
+            this.close();
+        });        
+    },
 
     open(parent) {
         this.parent = parent;
@@ -471,9 +493,21 @@ let editItem = {
     btnEdit: document.querySelector('.modal.edit-item .edit'),
     btnCancel: document.querySelector('.modal.edit-item .cancel'),
     item: null,
+
+    init() {
+        this.btnEdit.addEventListener("click", e => {
+            e.preventDefault();
+            this.clicked();
+        });
+        this.btnCancel.addEventListener("click", e => {
+            e.preventDefault();
+            this.close();
+        });        
+    },
     
 
     open(item) {
+        if (editItem.item) return;
         this.item = item;
         this.inpTitle.value = item.title;
         const date = new Date(item.startAt);
@@ -482,6 +516,7 @@ let editItem = {
     },
     
     close() {
+        if (!editItem.item) return;
         this.item = null;
         this.element.classList.remove('visible');
         this.inpTitle.value = '';
@@ -525,7 +560,17 @@ let addCategory = {
     btnAdd: document.querySelector('.modal.add-category .add'),
     btnCancel: document.querySelector('.modal.add-category .cancel'),
     parent: null,
-    
+
+    init() {
+        this.btnAdd.addEventListener("click", e => {
+            e.preventDefault();
+            this.clicked();
+        });
+        this.btnCancel.addEventListener("click", e => {
+            e.preventDefault();
+            this.close();
+        });
+    },
 
     open(parent) {
         this.parent = parent;
@@ -563,6 +608,64 @@ let addCategory = {
     },
 }
 
+let editCategory = {
+    element: document.querySelector('.modal.edit-category'),
+    inpName: document.querySelector('.modal.edit-category .name'),
+    btnEdit: document.querySelector('.modal.edit-category .edit'),
+    btnCancel: document.querySelector('.modal.edit-category .cancel'),
+    category: null,
+
+    init() {
+        this.btnEdit.addEventListener("click", e => {
+            e.preventDefault();
+            this.clicked();
+        });
+        this.btnCancel.addEventListener("click", e => {
+            e.preventDefault();
+            this.close();
+        });
+         
+    },
+
+    open(category) {
+        if (this.category) return;
+        this.category = category;
+        this.inpName.value = category.name;
+        this.element.classList.add('visible');
+        this.inpName.focus();
+    },
+    
+    close() {
+        if (!this.category) return;
+        this.category = null;
+        this.element.classList.remove('visible');
+        this.inpName.value = '';
+    },
+
+
+    clicked() {
+        const data = this.parse();
+        if (!data) return;
+        this.category.name = data.name;
+        this.category.updateElement();
+        this.close();
+    },
+    
+    parse() {
+        if (this.category == null) return null;
+        const name = this.inpName.value.trim();
+        if (!name.length) {
+            console.log("Failed to parse arguments. Name input is blank.");
+            return null;
+        }
+        return {
+            name: name
+        };
+    }
+}
+
+
+
 
 //---------------------------------------------------------------------------//
 
@@ -595,7 +698,7 @@ let categories = {
         }
         for (const x of this.children) {
             x.element.firstChild.classList.add('no-animation');
-            list.appendChild(x.element);
+            this.element.appendChild(x.element);
         }
     },
 
@@ -610,10 +713,10 @@ let categories = {
         category.parent = this;
     },
 
-    remove(category) {children
+    remove(category) {
         if (!(category instanceof Category)) return;
-        const i = this.categories.indexOf(category);
-        this.categories.splice(i, 1);
+        const i = this.children.indexOf(category);
+        this.children.splice(i, 1);
         this.element.removeChild(category.element);
         category.parent = null;
     },
@@ -682,46 +785,11 @@ let categories = {
 
 //---------------------------------------------------------------------------//
 
-addItem.btnAdd.addEventListener("click", e => {
-    e.preventDefault();
-    addItem.clicked();
-});
-
-addItem.btnCancel.addEventListener("click", e => {
-    e.preventDefault();
-    addItem.close();
-});
-addItem.inpRepetitions.addEventListener("input", e => {
-    e.preventDefault();
-    addItem.changedValues();
-});
-
-editItem.btnEdit.addEventListener("click", e => {
-    e.preventDefault();
-    editItem.clicked();
-});
-
-editItem.btnCancel.addEventListener("click", e => {
-    e.preventDefault();
-    editItem.close();
-});
-
 
 btnNewCategory.addEventListener("click", e => {
     e.preventDefault();
     addCategory.open(categories);
 });
-
-addCategory.btnAdd.addEventListener("click", e => {
-    e.preventDefault();
-    addCategory.clicked();
-});
-
-addCategory.btnCancel.addEventListener("click", e => {
-    e.preventDefault();
-    addCategory.close();
-});
-
 
 //---------------------------------------------------------------------------//
 
