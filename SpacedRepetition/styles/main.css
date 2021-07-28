@@ -309,7 +309,7 @@ button.show-more span {
 
 .modal form {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 0.5rem;
 }
 .modal form .inputs {
@@ -320,8 +320,12 @@ button.show-more span {
 }
 .modal form .buttons {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 0.2rem;
+}
+
+.modal form .buttons button {
+    flex-grow: 1;
 }
 
 @keyframes modal-container {
@@ -526,7 +530,6 @@ button.show-more span {
     flex-shrink: 0;
 }
 
-
 .item .body {
     display: flex;
     flex-direction: row;
@@ -703,6 +706,10 @@ button.show-more span {
 }
 
 
+.no-animation {
+    animation-name: none;
+}
+
 /*----------------------------------------------------------------------*/
 
 
@@ -727,6 +734,9 @@ button.show-more span {
 
 @media screen and (max-width: 500px) {
     .modal form {
+        flex-direction: column;
+    }
+    .modal form .buttons {
         flex-direction: column;
     }
 

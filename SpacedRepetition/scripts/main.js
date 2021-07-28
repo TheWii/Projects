@@ -1,5 +1,4 @@
 
-
 // revision dates since item creation(in days)
 let defaultRevisions = [
     0,
@@ -95,6 +94,13 @@ class Category {
         element.querySelector('.dropdown .new-section').addEventListener('click', e => {
             addCategory.open(this);
         });
+        element.querySelector('.move-up').addEventListener('click', e => {
+            this.move(-1);
+        });
+        element.querySelector('.move-down').addEventListener('click', e => {
+            this.move(1);
+        });
+
 
         this.element = element;
         this.updateElement();
@@ -118,7 +124,6 @@ class Category {
         for (const child of this.children) child.shrink();
     }
 
-
     add(...children) {
         for (const child of children) {
             if (!(child instanceof Item) && !(child instanceof Category)) continue;
@@ -139,6 +144,32 @@ class Category {
             child.parent = null
         }
         console.log(`Removed ${children.length} item(s) from category ${this.name}`);
+    }
+
+    moveChild(fromIndex, toIndex) {
+        const maxIndex = this.children.length - 1;
+        toIndex = Math.max(0, Math.min(toIndex, maxIndex));
+        fromIndex = Math.max(0, Math.min(fromIndex, maxIndex));
+        const item = this.children.splice(fromIndex, 1)[0];
+        this.children.splice(toIndex, 0, item);
+        this.resetList();
+    }
+
+    move(offset) {
+        if (!this.parent || !this.parent.moveChild) return;
+        const fromIndex = this.parent.children.indexOf(this);
+        if (fromIndex == -1) return;
+        let toIndex = fromIndex + offset;
+        this.parent.moveChild(fromIndex, toIndex);
+    }
+
+    resetList() {
+        const list = this.element.querySelector('.items');
+        while(list.firstChild) list.removeChild(list.firstChild);
+        for (const x of this.children) {
+            x.element.firstChild.classList.add('no-animation');
+            list.appendChild(x.element);
+        }
     }
 
     getData() {
@@ -190,6 +221,10 @@ class Item {
             .addEventListener('click', e => this.delete() );
         element.querySelector('.edit')
             .addEventListener('click', e => this.edit() );
+        element.querySelector('.move-up')
+            .addEventListener('click', e => this.move(-1) );
+        element.querySelector('.move-down')
+            .addEventListener('click', e => this.move(1) );
             
         this.element = element;
         this.createChecklist();
@@ -228,6 +263,14 @@ class Item {
     shrink() {
         this.expanded = false;
         this.element.querySelector('.item').classList.remove('active');
+    }
+
+    move(offset) {
+        if (!this.parent) return;
+        const fromIndex = this.parent.children.indexOf(this);
+        if (fromIndex == -1) return;
+        let toIndex = fromIndex + offset;
+        this.parent.moveChild(fromIndex, toIndex);
     }
 
     getData() {
@@ -363,6 +406,7 @@ let addItem = {
     element: document.querySelector('.modal.add-item'),
     inpTitle: document.querySelector('.modal.add-item .title'),
     inpStartDate: document.querySelector('.modal.add-item .start-date'),
+    inpRepetitions: document.querySelector('.modal.add-item .repetitions'),
     btnAdd: document.querySelector('.modal.add-item .add'),
     btnCancel: document.querySelector('.modal.add-item .cancel'),
     
@@ -371,12 +415,23 @@ let addItem = {
         this.parent = parent;
         this.element.classList.add('visible');
         this.inpTitle.focus();
+        if (!this.inpRepetitions.value.length) {
+            this.inpRepetitions.value = '1';
+        }
     },
     
     close() {
         this.parent = null;
         this.element.classList.remove('visible');
         this.inpTitle.value = '';
+    },
+
+    changedValues() {
+        let i = parseInt(this.inpRepetitions.value);
+        if (isNaN(i)) i = 1;
+        i = Math.min(8, Math.max(1, i % 10));
+        this.inpRepetitions.value = i.toString();
+
     },
 
 
@@ -513,7 +568,7 @@ let addCategory = {
 
 let categories = {
     element: document.querySelector('.categories'),
-    categories: [],
+    children: [],
     observer: null,
 
     createItem(title, dates=null, startAt=null, createdAt=null) {
@@ -525,18 +580,37 @@ let categories = {
         );
     },
 
+    moveChild(fromIndex, toIndex) {
+        const maxIndex = this.children.length - 1;
+        toIndex = Math.max(0, Math.min(toIndex, maxIndex));
+        fromIndex = Math.max(0, Math.min(fromIndex, maxIndex));
+        const item = this.children.splice(fromIndex, 1)[0];
+        this.children.splice(toIndex, 0, item);
+        this.resetList();
+    },
+
+    resetList() {
+        while(this.element.firstChild) {
+            this.element.removeChild(this.element.firstChild);
+        }
+        for (const x of this.children) {
+            x.element.firstChild.classList.add('no-animation');
+            list.appendChild(x.element);
+        }
+    },
+
     createCategory(name) {
         return new Category(name);
     },
 
     add(category) {
         if (!(category instanceof Category)) return;
-        this.categories.push(category);
+        this.children.push(category);
         this.element.appendChild(category.element);
         category.parent = this;
     },
 
-    remove(category) {
+    remove(category) {children
         if (!(category instanceof Category)) return;
         const i = this.categories.indexOf(category);
         this.categories.splice(i, 1);
@@ -546,7 +620,7 @@ let categories = {
 
     get(name) {
         name = name.toLowerCase();
-        for (const category of this.categories) {
+        for (const category of this.children) {
             if (category.name == name) return category;
         }
     },
@@ -584,7 +658,7 @@ let categories = {
     },
     
     save() {
-        const data = this.categories.map(
+        const data = this.children.map(
             category => category.getData()
         );
         const json = JSON.stringify(data);
@@ -616,6 +690,10 @@ addItem.btnAdd.addEventListener("click", e => {
 addItem.btnCancel.addEventListener("click", e => {
     e.preventDefault();
     addItem.close();
+});
+addItem.inpRepetitions.addEventListener("input", e => {
+    e.preventDefault();
+    addItem.changedValues();
 });
 
 editItem.btnEdit.addEventListener("click", e => {
