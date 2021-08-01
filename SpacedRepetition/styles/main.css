@@ -759,6 +759,9 @@ button.show-more span {
 
 
 @media screen and (max-width: 800px) {
+    .modal .content {
+        top: 0.5em;
+    }
     .category .category.active > .body {
         padding-left: 0;
         border: none;

@@ -485,7 +485,6 @@ let addItem = {
         this.parent = parent;
         this.inpStartDate.value = dates.format(Date.now(), '{YYYY}-{MM}-{DD}');
         this.element.classList.add('visible');
-        this.inpTitle.focus();
         this.changedValues();
     },
     
