@@ -19,6 +19,9 @@
     --category-backgr: #f6f6f6;
     --category-text: #5a5a5a;
     --button-hover: #ffdbd1;
+    --scroll-track: #dad9d9;
+    --scroll-thumb: #5c5c5c;
+    --scroll-thumb-hover: #414141;
 }
 
 
@@ -154,6 +157,22 @@ button.show-more span {
     display: inline-block;
     pointer-events: none;
     transform: translate(45%, -20%) rotate(90deg);
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+  }
+
+::-webkit-scrollbar-track {
+    background: var(--scroll-track);
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
 }
 
 /*----------------------------------------------------------------------*/
@@ -342,6 +361,25 @@ button.show-more span {
     padding: 0.25em 0.5em;
     border: 0.1em solid;
     border-radius: 0.2em;
+}
+.modal .repetitions-wrap {
+    padding: 0.5em;
+}
+.modal ul.repetitions {
+    display: flexbox;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.25em;
+    max-height: 8.5em;
+    overflow-y: auto;
+}
+
+.modal ul.repetitions li {
+    text-align: center;
+}
+.modal ul.repetitions li > input {
+    width: 4rem;
 }
 
 
@@ -549,6 +587,12 @@ button.show-more span {
     flex-grow: 1;
 }
 
+.item .body > .revisions {
+    display: block;
+    max-height: 23em;
+    overflow-y: auto;
+}
+
 .item .bottom {
     position: relative;
     display: grid;
@@ -590,7 +634,7 @@ button.show-more span {
     font-size: 1em;
     display: flex;
     flex-direction: row;
-    gap: 1em;
+    gap: 0.5em;
 }
 
 .item-check > .info {
@@ -600,6 +644,7 @@ button.show-more span {
     flex-direction: column;
     justify-content: center;
     min-width: 8em;
+    padding-right: 0.5em;
 }
 
 .revisions > li + li .info::before {
@@ -620,7 +665,7 @@ button.show-more span {
 
 .item-check > .bar {
     position: relative;
-    padding: 0.8em 0;
+    padding: 0.8em 0.4em;
 }
 
 
@@ -752,9 +797,6 @@ button.show-more span {
         flex-direction: column;
     }
 
-    .item-check {
-        justify-content: center;
-    }
     .item-check > .info {
         flex-grow: 0;
     }

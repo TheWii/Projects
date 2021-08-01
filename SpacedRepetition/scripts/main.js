@@ -1,12 +1,23 @@
 
 // revision dates since item creation(in days)
 let defaultRevisions = [
-    0,
     1,
     2,
     3,
-    4
-].map(i => i * 24);
+    4,
+    6,
+    8,
+    10,
+    12,
+    16,
+    20,
+    24,
+    28,
+    33,
+    38,
+    43,
+    48
+].map(i => i * 168);
 
 const btnNewCategory = document.querySelector('button.new-category');
 
@@ -54,18 +65,20 @@ const dates = {
         'Saturday'
     ],
 
-    format(dateObj, pattern='{month} {day}, {year}') {
+    format(dateObj, pattern='{MN} {DD}, {YYYY}') {
+        if (!(dateObj instanceof Date)) dateObj = new Date(dateObj);
         const year = dateObj.getFullYear();
-        const monthIndex = dateObj.getMonth();
-        const month = this.months[monthIndex];
+        const month = dateObj.getMonth() + 1;
+        const monthDigit = month < 10 ? '0'+month : `${month}`;
+        const monthName = this.months[month-1];
         const day = dateObj.getDate();
         const weekday = this.weekdays[dateObj.getDay()];
         return pattern
-            .replace('{weekday}', weekday)
-            .replace('{day}', day)
-            .replace('{month}', month)
-            .replace('{month-num}', monthIndex+1)
-            .replace('{year}', year);
+            .replace('{WD}', weekday)
+            .replace('{DD}', day)
+            .replace('{MN}', monthName)
+            .replace('{MM}', monthDigit)
+            .replace('{YYYY}', year);
     }
 }
 
@@ -201,21 +214,12 @@ class Category {
 class Item {
     constructor(title, revisions=null, startAt=null, createdAt=null) {
         revisions = revisions ? revisions : defaultRevisions;
-        this.revisions = [];
-        //console.log(`Creating item with revisions: ${revisions}`);
-        for (const revision of revisions) {
-            //if(typeof revision === 'number') console.log(`Creating item that is a number, time: ${revision}`);
-            //else console.log(`Creating revision, Time: ${revision.time} hours. Completed: ${revision.completed}`);
-            this.revisions.push( typeof revision === 'number' ?
-                new Revision(this, revision, false) :
-                new Revision(this, revision.time, revision.completed)
-            )
-        }
         this.title = title;
         this.createdAt = createdAt ? createdAt : Date.now();
         this.startAt = startAt ? startAt : this.createdAt;
         this.expanded = false;
         this.parent = null;
+        this.setRevisions(revisions);
         this.createElement();
     }
 
@@ -238,27 +242,45 @@ class Item {
             .addEventListener('click', e => this.move(1) );
             
         this.element = element;
-        this.createChecklist();
+        this.createRevisionElements();
         this.updateElement();
     }
     updateElement() {
         this.element.querySelector('.info .title').innerHTML = this.title;
         this.element.querySelector('.created-at > .value')
-            .innerHTML = new Date(this.createdAt).toLocaleDateString();
+            .innerHTML = dates.format(this.createdAt);
         this.element.querySelector('.start-at > .value')
-            .innerHTML = new Date(this.startAt).toLocaleDateString();
-        this.updateChecklist();
+            .innerHTML = dates.format(this.startAt);
+        this.updateRevisionElements();
     }
 
-    createChecklist() {
+    setRevisions(list) {
+        if (!this.revisions) this.revisions = [];
+        const revisions = [];
+        for (let data of list) {
+            if (typeof data === 'number')
+                data = {time:data, completed:false};
+            const prevRevision = this.revisions.filter(
+                revision => revision.time === data.time
+            )[0];
+            if (prevRevision) data.completed = prevRevision.completed;
+            revisions.push(
+                new Revision(this, data.time, data.completed)
+            );
+        }
+        this.revisions = revisions;
+    }
+    createRevisionElements() {
         const listElement = this.element.querySelector('.revisions');
+        while(listElement.firstChild) {
+            listElement.removeChild(listElement.firstChild);
+        }
         for (const revision of this.revisions) {
             revision.createElement();
             listElement.appendChild(revision.element);
         }
     }
-
-    updateChecklist() {
+    updateRevisionElements() {
         for (const revision of this.revisions) {
             revision.updateElement();
         }
@@ -307,11 +329,12 @@ class Item {
 
 class Revision {
     constructor(parent, time, completed=false) {
-        this.parent = parent;
-        this.time = time;
-        this.completed = completed;
         this.status = null;
         this.element = null;
+        this.parent = parent;
+        this.time = time;
+        completed = (completed && this.getTotalTime() <= Date.now());
+        this.completed = completed;
     }
 
     createElement() {
@@ -357,7 +380,7 @@ class Revision {
         this.completed = (this.status === 'completed');
         itemCheck.setAttribute('clickable', this.isClickable());
     }
-    
+
     getName(status) {
         const date = new Date(this.getTotalTime());
         const now = new Date();
@@ -418,9 +441,13 @@ let addItem = {
     element: document.querySelector('.modal.add-item'),
     inpTitle: document.querySelector('.modal.add-item .title'),
     inpStartDate: document.querySelector('.modal.add-item .start-date'),
-    inpRepetitions: document.querySelector('.modal.add-item .repetitions'),
+    inpRepetitions: document.querySelector('.modal.add-item .repetition-number'),
+    ulRepetitions: document.querySelector('.modal.add-item .repetitions'),
     btnAdd: document.querySelector('.modal.add-item .add'),
     btnCancel: document.querySelector('.modal.add-item .cancel'),
+    repetitions: [],
+    repsAmount: null,
+    timeConversion: 24,
 
     init() {
         this.btnAdd.addEventListener("click", e => {
@@ -431,15 +458,18 @@ let addItem = {
             e.preventDefault();
             this.close();
         });        
+        this.inpRepetitions.addEventListener("input", e => {
+            e.preventDefault();
+            this.changedValues();
+        });        
     },
 
     open(parent) {
         this.parent = parent;
+        this.inpStartDate.value = dates.format(Date.now(), '{YYYY}-{MM}-{DD}');
         this.element.classList.add('visible');
         this.inpTitle.focus();
-        if (!this.inpRepetitions.value.length) {
-            this.inpRepetitions.value = '1';
-        }
+        this.changedValues();
     },
     
     close() {
@@ -449,18 +479,76 @@ let addItem = {
     },
 
     changedValues() {
-        let i = parseInt(this.inpRepetitions.value);
-        if (isNaN(i)) i = 1;
-        i = Math.min(8, Math.max(1, i % 10));
-        this.inpRepetitions.value = i.toString();
+        let amount = parseInt(this.inpRepetitions.value);
+        if (!amount) amount = 1;
+        amount = Math.min(16, Math.max(1, amount));
+        const create = this.repsAmount !== amount;
+        this.repsAmount = amount;
+        this.inpRepetitions.value = amount;
+        this.repetitions = this.getRepetitions();
+        if (create) this.createRepetitions();
+        else this.updateRepetitions();
+    },
 
+    getRepetitions() {
+        const list = this.ulRepetitions;
+        const repetitions = [];
+        for (let i=0; i<this.repsAmount; i++) {
+            const li = list.children[i];
+            let value;
+            if (li) value = parseInt(li.querySelector('input').value) * this.timeConversion;
+            if (!value) value = this.repetitions[i];
+            if (!value) value = defaultRevisions[i];
+            repetitions.push(value);
+        }
+        for (let i=0; i<repetitions.length; i++) {
+            let value = Math.floor(repetitions[i] / this.timeConversion);
+            if (i > 0) {
+                const previous = Math.floor(repetitions[i-1] / this.timeConversion);
+                value = Math.max(value, previous+1);
+            }
+            repetitions[i] = value * this.timeConversion;
+        }
+        //console.log(repetitions);
+        return repetitions;
+    },
+    createRepetitions() {
+        const list = this.ulRepetitions;
+        const repetitions = this.repetitions;
+        while (list.firstChild) list.removeChild(list.firstChild);
+        for (let i=0; i<repetitions.length; i++) {
+            const li = document.createElement('li');
+            const input = document.createElement('input');
+            input.addEventListener("input", e => {
+                e.preventDefault();
+                this.changedValues();
+            });            
+            input.type = 'number';
+            const textBefore = document.createElement('span');
+            textBefore.innerHTML = `${i+1}. IN `;
+            const textAfter = document.createElement('span');
+            textAfter.innerHTML = ` DAYS.`;
+            li.appendChild(textBefore);
+            li.appendChild(input);
+            li.appendChild(textAfter);
+            list.appendChild(li);
+        }
+        this.updateRepetitions();
+    },
+    updateRepetitions() {
+        for (let i=0; i<this.repetitions.length; i++) {
+            const li = this.ulRepetitions.children[i];
+            if (!li) continue;
+            const input = li.querySelector('input');
+            input.value = Math.floor(this.repetitions[i] / 24).toString();
+        }
     },
 
 
     clicked() {
         const data = this.parse();
         if (!data) return;
-        const item = categories.createItem(data.title, null, data.startAt);
+        const item = categories.createItem(data.title, data.repetitions, data.startAt);
         this.parent.expand();
         this.parent.add(item);
         this.close();
@@ -473,15 +561,17 @@ let addItem = {
             console.error("Failed to parse arguments for new item creation. A title must be given.");
             return null;
         }
-        const start = this.inpStartDate.value.trim();
+        const start = this.inpStartDate.value;
         const startTime = start.length ? new Date(start).setHours(23, 59, 59, 999) : null;
         if (isNaN(startTime)) {
             console.error("Failed to parse arguments for new item creation. Date input is invalid.");
             return null;
         }
+        const repetitions = this.getRepetitions();
         return {
             title: title,
-            startAt: startTime
+            startAt: startTime,
+            repetitions: repetitions
         };
     }
 }
@@ -490,9 +580,13 @@ let editItem = {
     element: document.querySelector('.modal.edit-item'),
     inpTitle: document.querySelector('.modal.edit-item .title'),
     inpStartDate: document.querySelector('.modal.edit-item .start-date'),
+    inpRepetitions: document.querySelector('.modal.edit-item .repetition-number'),
+    ulRepetitions: document.querySelector('.modal.edit-item .repetitions'),
     btnEdit: document.querySelector('.modal.edit-item .edit'),
     btnCancel: document.querySelector('.modal.edit-item .cancel'),
     item: null,
+    repetitions: [],
+    repsAmount: null,
 
     init() {
         this.btnEdit.addEventListener("click", e => {
@@ -502,16 +596,24 @@ let editItem = {
         this.btnCancel.addEventListener("click", e => {
             e.preventDefault();
             this.close();
-        });        
+        });
+        this.inpRepetitions.addEventListener("input", e => {
+            e.preventDefault();
+            this.changedValues();
+        });  
     },
     
-
     open(item) {
         if (editItem.item) return;
         this.item = item;
         this.inpTitle.value = item.title;
         const date = new Date(item.startAt);
-        this.inpStartDate.value = dates.format(date);
+        this.inpStartDate.value = dates.format(date, '{YYYY}-{MM}-{DD}');
+        console.log(this.inpStartDate.value);
+        this.repetitions = item.revisions.map(x => x.time);
+        this.repsAmount = this.item.revisions.length;
+        this.inpRepetitions.value = this.repsAmount;
+        this.createRepetitions();
         this.element.classList.add('visible');
     },
     
@@ -523,35 +625,41 @@ let editItem = {
         this.inpStartDate.value = '';
     },
 
-
     clicked() {
         const data = this.parse();
+        //console.log(data);
         if (!data) return;
         this.item.title = data.title;
         if (data.startAt) this.item.startAt = data.startAt;
+        this.item.setRevisions(data.repetitions);
+        this.item.createRevisionElements();
         this.item.updateElement();
         this.close();
     },
-    
+
     parse() {
         if (this.item == null) return null;
         const title = this.inpTitle.value.trim();
         if (!title.length) {
-            console.log("Failed to parse arguments. Title input is blank.");
+            console.error("Failed to parse arguments for new item creation. A title must be given.");
             return null;
         }
-        const start = this.inpStartDate.value.trim();
+        const start = this.inpStartDate.value;
+        console.log(`The start date: ${start}`);
         const startTime = start.length ? new Date(start).setHours(23, 59, 59, 999) : null;
         if (isNaN(startTime)) {
-            console.log("Failed to parse arguments. Date input is invalid.");
+            console.error("Failed to parse arguments for new item creation. Date input is invalid.");
             return null;
         }
+        const repetitions = this.getRepetitions();
         return {
             title: title,
-            startAt: startTime
+            startAt: startTime,
+            repetitions: repetitions
         };
     }
 }
+Object.setPrototypeOf(editItem, addItem);
 
 
 let addCategory = {
@@ -586,26 +694,24 @@ let addCategory = {
 
 
     clicked() {
-        if (!this.valid()) return;
-        const name = this.inpName.value.trim().toLowerCase();
-        const category = categories.createCategory(name);
+        const data = this.parse();
+        if (!data) return;
+        const category = categories.createCategory(data.name);
         if (this.parent instanceof Category) this.parent.expand();
         this.parent.add(category);
         this.close();
     },
     
-    valid() {
-        const input = this.inpName.value.trim().toLowerCase();
-        if (input === '') {
-            console.log("Failed to create category. The input is blank.");
-            return false;
+    parse() {
+        const name = this.inpName.value.trim();
+        if (!name.length) {
+            console.log("Failed to parse arguments. Name input is blank.");
+            return null;
         }
-        if (categories.get(input)) {
-            console.log("Failed to create category. A category with the same name already exists.");
-            return false;
-        }
-        return true;
-    },
+        return {
+            name: name
+        };
+    }
 }
 
 let editCategory = {
@@ -642,7 +748,6 @@ let editCategory = {
         this.inpName.value = '';
     },
 
-
     clicked() {
         const data = this.parse();
         if (!data) return;
@@ -663,8 +768,6 @@ let editCategory = {
         };
     }
 }
-
-
 
 
 //---------------------------------------------------------------------------//
@@ -734,7 +837,7 @@ let categories = {
         const data = JSON.parse(
             window.localStorage.getItem('categories') || '[]'
         );
-        console.log(data);
+        //console.log(data);
 
         function create(object) {
             if (object.children) {
