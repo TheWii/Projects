@@ -65,17 +65,19 @@ const dates = {
         'Saturday'
     ],
 
-    format(dateObj, pattern='{MN} {DD}, {YYYY}') {
+    format(dateObj, pattern='{MN} {D}, {YYYY}') {
         if (!(dateObj instanceof Date)) dateObj = new Date(dateObj);
         const year = dateObj.getFullYear();
         const month = dateObj.getMonth() + 1;
         const monthDigit = month < 10 ? '0'+month : `${month}`;
         const monthName = this.months[month-1];
         const day = dateObj.getDate();
+        const dayDigit = day < 10 ? '0'+day : `${day}`;
         const weekday = this.weekdays[dateObj.getDay()];
         return pattern
             .replace('{WD}', weekday)
-            .replace('{DD}', day)
+            .replace('{D}', day)
+            .replace('{DD}', dayDigit)
             .replace('{MN}', monthName)
             .replace('{MM}', monthDigit)
             .replace('{YYYY}', year);
@@ -128,6 +130,11 @@ class Category {
 
     updateElement() {
         this.element.querySelector('.name').innerHTML = this.name;
+    }
+
+    update() {
+        this.updateElement();
+        for (let child of this.children) child.update();
     }
 
 
@@ -254,6 +261,11 @@ class Item {
         this.updateRevisionElements();
     }
 
+    update() {
+        this.updateElement();
+        for (let revision of this.revisions) revision.update();
+    }
+
     setRevisions(list) {
         if (!this.revisions) this.revisions = [];
         const revisions = [];
@@ -352,11 +364,16 @@ class Revision {
     updateElement() {
         let time = this.getTotalTime();
         const date = new Date(time);
+        //console.log(`Revision in ${this.time/24} days at ${date.toLocaleString()}`);
         this.element.querySelector('.date')
             .innerHTML = dates.format(date);
 
         const status = this.getStatusByTime(time);
         this.setStatus(status);
+    }
+
+    update() {
+        this.updateElement();
     }
 
     getStatusByTime(time) {
@@ -383,8 +400,8 @@ class Revision {
 
     getName(status) {
         const date = new Date(this.getTotalTime());
-        const now = new Date();
-        let days = (this.getTotalTime() - now.getTime()) / 86400000;
+        const today = new Date().setHours(0, 0, 0, 0);
+        let days = (this.getTotalTime() - today) / 86400000;
         //console.log(`revision: ${this.getTotalTime()} | ${date.toLocaleString()}, now: ${now.getTime()} | ${now.toLocaleString()}, days: ${days}`);
         days = Math.ceil(Math.abs(days));
         switch (status) {
@@ -562,11 +579,15 @@ let addItem = {
             return null;
         }
         const start = this.inpStartDate.value;
-        const startTime = start.length ? new Date(start).setHours(23, 59, 59, 999) : null;
-        if (isNaN(startTime)) {
+        const startDate = new Date(start);
+        if (isNaN(startDate)) {
             console.error("Failed to parse arguments for new item creation. Date input is invalid.");
             return null;
         }
+        const timeOffset = startDate.getTimezoneOffset() * 60000;
+        let startTime = null;
+        if (start.length) startTime = startDate.getTime() + timeOffset;
+        if (startTime) startTime = new Date(startTime).setHours(23, 59, 59, 999);
         const repetitions = this.getRepetitions();
         return {
             title: title,
@@ -608,8 +629,10 @@ let editItem = {
         this.item = item;
         this.inpTitle.value = item.title;
         const date = new Date(item.startAt);
+        //console.log(date);
+        //this.inpStartDate.value = dates.format(Date.now(), '{YYYY}-{MM}-{D}');
         this.inpStartDate.value = dates.format(date, '{YYYY}-{MM}-{DD}');
-        console.log(this.inpStartDate.value);
+        //console.log(dates.format(date, '{YYYY}-{MM}-{DD}'));
         this.repetitions = item.revisions.map(x => x.time);
         this.repsAmount = this.item.revisions.length;
         this.inpRepetitions.value = this.repsAmount;
@@ -645,12 +668,17 @@ let editItem = {
             return null;
         }
         const start = this.inpStartDate.value;
-        console.log(`The start date: ${start}`);
-        const startTime = start.length ? new Date(start).setHours(23, 59, 59, 999) : null;
-        if (isNaN(startTime)) {
+        const startDate = new Date(start);
+        if (isNaN(startDate)) {
             console.error("Failed to parse arguments for new item creation. Date input is invalid.");
             return null;
         }
+        const timeOffset = startDate.getTimezoneOffset() * 60000;
+        let startTime = null;
+        if (start.length) startTime = startDate.getTime() + timeOffset;
+        //const day = Math.floor(startTime / 86400000);
+        //console.log(`Date is ${new Date(startTime).toLocaleString()}`)
+        //if (startTime) startTime = new Date(startTime).setHours(23, 59, 59, 999);
         const repetitions = this.getRepetitions();
         return {
             title: title,
@@ -872,6 +900,13 @@ let categories = {
         console.log(`Saved items to storage.`);
     },
 
+    update() {
+        const then = Date.now();
+        for (let child of this.children) child.update();
+        const took = Date.now() - then;
+        console.log(`Updated items. Took ${took}ms.`)
+    },
+
     init() {
         this.load();
 
@@ -882,6 +917,8 @@ let categories = {
             subtree: true,
             childList: true
         });
+
+        //this.interval = window.setInterval(e => this.update(), 1000);
     }
 }
 
