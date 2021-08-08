@@ -1,5 +1,13 @@
 
-// revision dates since item creation(in days)
+Array.prototype.remove = function(...elements) {
+    for (let element of elements) {
+        const i = this.indexOf(element);
+        if (i >= 0) this.splice(i, 1);
+    }
+}
+
+
+// revision dates since item creation(in weeks)
 let defaultRevisions = [
     1,
     2,
@@ -20,6 +28,7 @@ let defaultRevisions = [
 ].map(i => i * 168);
 
 const btnNewCategory = document.querySelector('button.new-category');
+const btnPendingRevs = document.querySelector('button.pending-revs');
 
 //---------------------------------------------------------------------------//
 
@@ -36,6 +45,7 @@ async function init() {
     editItem.init();
     addCategory.init();
     editCategory.init();
+    pendingRevs.init();
 }
 
 //---------------------------------------------------------------------------//
@@ -137,6 +147,13 @@ class Category {
         for (let child of this.children) child.update();
     }
 
+    getLocation() {
+        let location = '';
+        if (this.parent && this.parent.getLocation)
+            location = this.parent.getLocation() + ' / ';
+        return location + this.name; 
+    }
+
 
     expand() {
         if (this.expanded) return;
@@ -165,8 +182,7 @@ class Category {
     remove(...children) {
         for (const child of children) {
             if (!(child instanceof Item) && !(child instanceof Category)) continue;
-            const i = this.children.indexOf(child);
-            this.children.splice(i, 1);
+            const i = this.children.remove(child);
             this.element.querySelector('.items').removeChild(child.element);
             child.parent = null
         }
@@ -297,6 +313,23 @@ class Item {
             revision.updateElement();
         }
     }
+    nextRevision() {
+        for (let revision of this.revisions) {
+            if (!revision.completed) return revision;
+        }
+    }
+    getProgress() {
+        let completed = 0;
+        for (let revision of this.revisions)
+            if (revision.completed) completed++;
+        return completed;
+    }
+    isComplete() {
+        return !this.nextRevision();
+    }
+    getLocation() {
+        return this.parent.getLocation();
+    }
 
     expand() {
         if (this.expanded) return;
@@ -345,7 +378,7 @@ class Revision {
         this.element = null;
         this.parent = parent;
         this.time = time;
-        completed = (completed && this.getTotalTime() <= Date.now());
+        completed = (completed && this.getTime() <= Date.now());
         this.completed = completed;
     }
 
@@ -362,9 +395,8 @@ class Revision {
     }
 
     updateElement() {
-        let time = this.getTotalTime();
+        let time = this.getTime();
         const date = new Date(time);
-        //console.log(`Revision in ${this.time/24} days at ${date.toLocaleString()}`);
         this.element.querySelector('.date')
             .innerHTML = dates.format(date);
 
@@ -399,11 +431,8 @@ class Revision {
     }
 
     getName(status) {
-        const date = new Date(this.getTotalTime());
-        const today = new Date().setHours(0, 0, 0, 0);
-        let days = (this.getTotalTime() - today) / 86400000;
-        //console.log(`revision: ${this.getTotalTime()} | ${date.toLocaleString()}, now: ${now.getTime()} | ${now.toLocaleString()}, days: ${days}`);
-        days = Math.ceil(Math.abs(days));
+        //console.log(`revision: ${this.getTime()} | ${date.toLocaleString()}, now: ${now.getTime()} | ${now.toLocaleString()}, days: ${days}`);
+        const days = this.getDays();
         switch (status) {
             case 'today': return 'Today';
             case 'scheduled':
@@ -418,7 +447,14 @@ class Revision {
         }
     }
 
-    getTotalTime() {
+    getDays() {
+        const date = new Date(this.getTime());
+        const today = new Date().setHours(0, 0, 0, 0);
+        let days = (this.getTime() - today) / 86400000;
+        return Math.ceil(Math.abs(days));
+    }
+
+    getTime() {
         return this.parent.startAt + this.time * 3600000;
     }
 
@@ -436,7 +472,7 @@ class Revision {
         
         if (this.completed) {
             this.completed = false;
-            const status = this.getStatusByTime(this.getTotalTime());
+            const status = this.getStatusByTime(this.getTime());
             this.setStatus(status);
             return;
         }
@@ -496,7 +532,7 @@ let addItem = {
 
     changedValues() {
         let amount = parseInt(this.inpRepetitions.value);
-        if (!amount) amount = 1;
+        if (!amount) amount = 4;
         amount = Math.min(16, Math.max(1, amount));
         const create = this.repsAmount !== amount;
         this.repsAmount = amount;
@@ -584,9 +620,8 @@ let addItem = {
             return null;
         }
         const timeOffset = startDate.getTimezoneOffset() * 60000;
-        let startTime = null;
-        if (start.length) startTime = startDate.getTime() + timeOffset;
-        if (startTime) startTime = new Date(startTime).setHours(23, 59, 59, 999);
+        let startTime = startDate.getTime() + timeOffset;
+        startTime = new Date(startTime).setHours(23, 59, 59, 999);
         const repetitions = this.getRepetitions();
         return {
             title: title,
@@ -673,11 +708,8 @@ let editItem = {
             return null;
         }
         const timeOffset = startDate.getTimezoneOffset() * 60000;
-        let startTime = null;
-        if (start.length) startTime = startDate.getTime() + timeOffset;
-        //const day = Math.floor(startTime / 86400000);
-        //console.log(`Date is ${new Date(startTime).toLocaleString()}`)
-        //if (startTime) startTime = new Date(startTime).setHours(23, 59, 59, 999);
+        let startTime = startDate.getTime() + timeOffset;
+        startTime = new Date(startTime).setHours(23, 59, 59, 999);
         const repetitions = this.getRepetitions();
         return {
             title: title,
@@ -796,6 +828,136 @@ let editCategory = {
     }
 }
 
+let pendingRevs = {
+    element: document.querySelector('.modal.pending-revs'),
+    ulDays: document.querySelector('.modal.pending-revs .days'),
+    parent: null,
+
+    init() {
+        this.element.addEventListener('click', e => {
+            e.preventDefault();
+            if (e.target === this.element) this.close();
+        });
+    },
+
+    open(parent) {
+        this.parent = parent;
+        this.update();
+        this.element.classList.add('visible');
+    },
+    
+    close() {
+        this.parent = null;
+        this.element.classList.remove('visible');
+    },
+
+    showItem(item) {
+        this.close();
+        item.expand();
+        item.element.scrollIntoView();
+    },
+
+    update() {
+        const then = Date.now();
+        function getItems(object) {
+            if (object.children) return object.children.map(
+                child => getItems(child)
+            );
+            return object;
+        }
+        let items = getItems(this.parent).flat(Infinity);
+        items = items.filter( item => !item.isComplete() );
+        items = items.sort((a, b) =>
+            a.nextRevision().getTime() - b.nextRevision().getTime()
+        );
+        //console.log(items);
+        this.clear();
+        this.createList(items);
+        console.log(`Updated modal. Took ${Date.now() - then}ms.`)
+
+    },
+
+    clear() {
+        const l = this.ulDays;
+        while (l.firstChild) l.removeChild(l.firstChild);
+    },
+
+    createList(items) {
+        const remaining = new Array(...items);
+        while (remaining.length) {
+            const time = remaining[0].nextRevision().getTime();
+            const matched = remaining.filter(value =>
+                value.nextRevision().getTime() === time
+            );
+            const element = this.createDay(time, matched);
+            this.ulDays.appendChild(element);    
+            remaining.remove(...matched);
+        }
+    },
+
+    createDay(time, items) {
+        const element = document.createElement('li');
+        element.classList.add('day');
+
+        const top = document.createElement('div');
+        top.classList.add('top');
+        element.appendChild(top);
+
+        const title = document.createElement('span');
+        title.classList.add('title');
+        title.innerHTML = dates.format(new Date(time));
+        top.appendChild(title);
+        
+        const ulRevisions = document.createElement('ul');
+        ulRevisions.classList.add('revisions');
+        for (let item of items) {
+            ulRevisions.appendChild(
+                this.createRevision(item)
+            );
+        }
+        element.appendChild(ulRevisions);
+        return element;
+    },
+
+    createRevision(item) {
+        const revision = item.nextRevision();
+        const element = document.createElement('li');
+        element.classList.add('revision');
+        element.setAttribute('status', revision.status);
+        element.addEventListener('click', e => {
+            e.preventDefault();
+            this.showItem(item);
+
+        });
+
+        const icon = document.createElement('span');
+        icon.classList.add('icon');
+        const label = document.createElement('span');
+        const labelText = document.createTextNode(
+            `${item.getProgress()}/${item.revisions.length}`
+        );
+        label.appendChild(labelText);
+        icon.appendChild(label);
+        element.appendChild(icon);
+        
+        const info = document.createElement('div');
+        info.classList.add('info');
+        element.appendChild(info);
+        
+        const title = document.createElement('span');
+        title.classList.add('title');
+        title.innerHTML = item.title;
+        info.appendChild(title);
+        
+        const location = document.createElement('span');
+        location.classList.add('location');
+        location.innerHTML = item.getLocation();
+        info.appendChild(location);
+        
+        return element;
+    }
+}
+
 
 //---------------------------------------------------------------------------//
 
@@ -845,8 +1007,7 @@ let categories = {
 
     remove(category) {
         if (!(category instanceof Category)) return;
-        const i = this.children.indexOf(category);
-        this.children.splice(i, 1);
+        this.children.remove(category);
         this.element.removeChild(category.element);
         category.parent = null;
     },
@@ -928,6 +1089,11 @@ let categories = {
 btnNewCategory.addEventListener("click", e => {
     e.preventDefault();
     addCategory.open(categories);
+});
+
+btnPendingRevs.addEventListener("click", e => {
+    e.preventDefault();
+    pendingRevs.open(categories);
 });
 
 //---------------------------------------------------------------------------//

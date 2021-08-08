@@ -16,6 +16,7 @@
     
             <div class='top'>
                 <button class="new-category orange" type="button">Add New Category</button>
+                <button class="pending-revs orange" type="button">Pending Revisions</button>
             </div>
     
             <div class="bottom">
@@ -27,7 +28,8 @@
     </div>
 
     <div class="modal add-item">
-        <div class="content">
+        <div class="content-wrap">
+            <div class="content">
             <h1>New Item</h1>
             <form autocomplete="off">
                 <div class="inputs">
@@ -46,51 +48,71 @@
                     <button class="cancel red" type="button">CANCEL</button>
                 </div>
             </form>
+            </div>
         </div>
     </div>
 
     <div class="modal edit-item">
-        <div class="content">
-            <h1>Edit Item</h1>
-            <form autocomplete="off">
-                <div class="inputs">
-                    <span>Title:</span>
-                    <input class="title" type="text" placeholder="Title">
-                    <span>Start date:</span>
-                    <input class="start-date" type="date">
-                    <span>Repetitions:</span>
-                    <input class="repetition-number" type="number" min="1">
-                    <div class="repetitions-wrap">
-                        <ul class="repetitions"></ul>
+        <div class="content-wrap">
+            <div class="content">
+                <h1>Edit Item</h1>
+                <form autocomplete="off">
+                    <div class="inputs">
+                        <span>Title:</span>
+                        <input class="title" type="text" placeholder="Title">
+                        <span>Start date:</span>
+                        <input class="start-date" type="date">
+                        <span>Repetitions:</span>
+                        <input class="repetition-number" type="number" min="1">
+                        <div class="repetitions-wrap">
+                            <ul class="repetitions"></ul>
+                        </div>
                     </div>
-                </div>
-                <div class="buttons">
-                    <button class="edit" type="submit">EDIT</button>
-                    <button class="cancel red" type="button">CANCEL</button>
-                </div>
-            </form>
+                    <div class="buttons">
+                        <button class="edit" type="submit">EDIT</button>
+                        <button class="cancel red" type="button">CANCEL</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <div class="modal add-category">
-        <div class="content">
-            <h1>New Category</h1>
-            <form autocomplete="off">        
-                <input class="name" type="text" placeholder="Name">
-                <button class="add" type="submit">ADD</button>
-                <button class="cancel red" type="button">CANCEL</button>
-            </form>
+        <div class="content-wrap">
+            <div class="content">
+                <h1>New Category</h1>
+                <form autocomplete="off">        
+                    <input class="name" type="text" placeholder="Name">
+                    <div class="buttons">
+                        <button class="add" type="submit">ADD</button>
+                        <button class="cancel red" type="button">CANCEL</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <div class="modal edit-category">
-        <div class="content">
-            <h1>Edit Category</h1>
-            <form autocomplete="off">        
-                <input class="name" type="text" placeholder="Name">
-                <button class="edit" type="submit">EDIT</button>
-                <button class="cancel red" type="button">CANCEL</button>
-            </form>
+        <div class="content-wrap">
+            <div class="content">
+                <h1>Edit Category</h1>
+                <form autocomplete="off">        
+                    <input class="name" type="text" placeholder="Name">
+                    <div class="buttons">
+                        <button class="edit" type="submit">EDIT</button>
+                        <button class="cancel red" type="button">CANCEL</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal pending-revs">
+        <div class="content-wrap">
+            <div class="content">
+                <h1>Pending Revisions</h1>
+                <ul class="days"></ul>
+            </div>
         </div>
     </div>
 
