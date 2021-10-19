@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Manrope:wght@600,800" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+  <link rel="stylesheet" href="styles/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <title>Frontend Mentor | Interactive pricing component</title>
+</head>
+
+<body>
+  <div class="page-wrap">
+    <div class="page-content">
+        <div class="top">
+          <h1>Simple, traffic-based pricing</h1>
+          <p>
+              <span>Sign-up for our 30-day trial.</span>
+              <span>No credit card required.</span>
+          </p>
+        </div>
+        <form class="container" id="app">
+          <span class="pageviews">{{pageviews}} PAGEVIEWS</span>
+
+          <div class="price">
+            <span class="value">${{fprice}}</span>
+            <span>/ month</span>
+          </div>
+
+          <pricing-range
+            :default-value="range"
+            @updated="updateRange"
+          ></pricing-range>
+
+          <billing
+            :checked="hasDiscount"
+            :discount="discount"
+            @updated="updateBilling"
+          ></billing>
+
+          <div class="trial">
+            <ul class="details">
+              <li>Unlimited websites</li>
+              <li>100% data ownership</li>
+              <li>Email reports</li>
+            </ul>
+            <input type="submit" value="Start my trial">
+          </div>
+
+        </form>
+    </div>
+  </div>
+
+  <script src="scripts/input.js"></script>
+  <script src="scripts/main.js"></script>
+  
+</body>
+
+</html>
