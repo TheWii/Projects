@@ -6,6 +6,7 @@ Vue.component('pricing-range', {
         class="pricing-input"
         name="pricingRange"
         title="Pricing Range"
+        aria-label="Pricing Range"
         :max="maxRange"
         v-model="value"
         @input="updated"

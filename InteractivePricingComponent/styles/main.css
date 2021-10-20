@@ -55,13 +55,49 @@ input[type=range]::-webkit-slider-thumb {
   background: var(--full-slider-bar);
 }
 
-input[type=range]::-webkit-slider-thumb:hover,
-input[type=range]::-webkit-slider-thumb:focus {
+input[type=range]::-webkit-slider-thumb:hover, input[type=range]::-webkit-slider-thumb:focus {
   -webkit-box-shadow: 0 15rem 25rem var(--full-slider-bar);
           box-shadow: 0 15rem 25rem var(--full-slider-bar);
 }
 
 input[type=range]::-webkit-slider-thumb:active {
+  background-color: var(--slider-background);
+}
+
+input[type=range]::-moz-range-thumb {
+  position: relative;
+  -moz-appearance: none;
+       appearance: none;
+  position: relative;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  background: var(--full-slider-bar);
+}
+
+input[type=range]::-moz-range-thumb:hover, input[type=range]::-moz-range-thumb:focus {
+  box-shadow: 0 15rem 25rem var(--full-slider-bar);
+}
+
+input[type=range]::-moz-range-thumb:active {
+  background-color: var(--slider-background);
+}
+
+input[type=range]::-ms-thumb {
+  position: relative;
+  appearance: none;
+  position: relative;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  background: var(--full-slider-bar);
+}
+
+input[type=range]::-ms-thumb:hover, input[type=range]::-ms-thumb:focus {
+  box-shadow: 0 15rem 25rem var(--full-slider-bar);
+}
+
+input[type=range]::-ms-thumb:active {
   background-color: var(--slider-background);
 }
 
@@ -112,9 +148,6 @@ body::before {
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
@@ -219,9 +252,9 @@ body::before {
   grid-area: billing;
   position: relative;
   font-size: 13rem;
-  display: -webkit-inline-box;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
   justify-self: center;
   -webkit-box-pack: center;
       -ms-flex-pack: center;
@@ -281,10 +314,8 @@ body::before {
 .container .billing .discount {
   position: absolute;
   left: calc(100% + 5rem);
-  width: -webkit-fit-content;
-  width: -moz-fit-content;
-  width: fit-content;
   font-size: 0.9em;
+  width: 90rem;
   padding: 0.2em 0.5em;
   border-radius: 2em;
   color: var(--discount-text);
@@ -390,6 +421,9 @@ body::before {
     -webkit-box-align: center;
         -ms-flex-align: center;
             align-items: center;
+  }
+  .container .billing .discount {
+    width: auto;
   }
   .container .billing .discount::before {
     content: '-';
