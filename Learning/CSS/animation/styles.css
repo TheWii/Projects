@@ -1,0 +1,52 @@
+@import url(lds-spinner.css);
+@import url(circle-spinner.css);
+@import url(bouncing-circles.css);
+
+:root {
+    --spinner-background: #000;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 0.0625rem;
+}
+
+body {
+    font-size: 16rem;
+    display: flex;
+    justify-content: center;
+    color: #000;
+}
+
+.container {
+    flex-grow: 1;
+    display: block;
+    padding: 20rem;
+}
+
+.title {
+    padding-bottom: 20rem;
+}
+
+.animations {
+    display: flex;
+    gap: 80rem;
+
+}
+
+.lds-spinner {
+    font-size: 32rem;
+}
+
+.circle-spinner {
+    font-size: 32rem;
+}
+
+.bouncing-circles {
+    font-size: 16rem;
+}

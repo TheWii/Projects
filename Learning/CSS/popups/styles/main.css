@@ -1,0 +1,308 @@
+:root {
+  --background-main: #FFF;
+  --background-container: #f3f3f3;
+  --background-button: #7595F7;
+  --background-button-contrast: #FBFDFF;
+  --toast: rgb(165, 200, 255);
+  --toast-hover: rgb(175, 210, 255);
+  --toast-success: rgb(171, 255, 149);
+  --toast-success-hover: rgb(181, 255, 159);
+  --toast-warning: rgb(255, 223, 175);
+  --toast-warning-hover: rgb(255, 233, 185);
+  --toast-error: rgb(255, 174, 165);
+  --toast-error-hover: rgb(255, 184, 175);
+}
+
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+button,
+button:hover
+button:focus,
+button:active {
+  background: none;
+  border: none;
+  outline: none;
+}
+
+h1 {
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5em;
+}
+
+html {
+  font-size: 0.0625rem;
+  font-family: 'Poppins';
+  font-weight: 500;
+}
+
+body {
+  position: relative;
+  font-size: 16rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  min-height: 100vh;
+  background: var(--background-main);
+}
+
+main {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+  max-width: 40ch;
+  margin: 0 16rem;
+}
+
+button,
+button:hover,
+button:focus,
+button:active {
+  font-size: 1em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--background-button);
+  padding: 0.5em 0.75em;
+  border-radius: 0.2em;
+  border: 0.1em solid var(--background-button);
+  cursor: pointer;
+}
+
+button:hover, button:focus, button:active,
+button:hover:hover,
+button:hover:focus,
+button:hover:active,
+button:focus:hover,
+button:focus:focus,
+button:focus:active,
+button:active:hover,
+button:active:focus,
+button:active:active {
+  background: var(--background-button);
+  color: var(--background-button-contrast);
+}
+
+#message {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 2;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100vw;
+  min-height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  -webkit-transition: top 0s 0.3s, opacity 0.3s ease-in-out;
+  transition: top 0s 0.3s, opacity 0.3s ease-in-out;
+}
+
+#message .container {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  text-align: center;
+  width: 400rem;
+  max-width: calc(100vw - 20rem);
+  padding: 20rem;
+  background: var(--background-container);
+  border-radius: 10rem;
+  -webkit-box-shadow: 0rem 5rem 20rem rgba(0, 0, 0, 0.3);
+          box-shadow: 0rem 5rem 20rem rgba(0, 0, 0, 0.3);
+  -webkit-transform: translate(-50%, -50%) scale(0.75);
+          transform: translate(-50%, -50%) scale(0.75);
+  -webkit-transition: top 0.5s ease-in, -webkit-transform 0s 0.5s;
+  transition: top 0.5s ease-in, -webkit-transform 0s 0.5s;
+  transition: top 0.5s ease-in, transform 0s 0.5s;
+  transition: top 0.5s ease-in, transform 0s 0.5s, -webkit-transform 0s 0.5s;
+}
+
+#message .container h1 {
+  font-size: 24rem;
+  margin-bottom: 10rem;
+}
+
+#message .container button {
+  margin-top: 20rem;
+}
+
+#message.visible {
+  top: 0;
+  opacity: 1;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#message.visible .container {
+  top: 50%;
+  -webkit-transition: -webkit-transform 0.4s ease-out;
+  transition: -webkit-transform 0.4s ease-out;
+  transition: transform 0.4s ease-out;
+  transition: transform 0.4s ease-out, -webkit-transform 0.4s ease-out;
+  -webkit-transform: translate(-50%, -50%) scale(1);
+          transform: translate(-50%, -50%) scale(1);
+}
+
+#toasts {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  gap: 10rem;
+  padding: 20rem 0 20rem 20rem;
+  max-width: 100vw;
+  list-style: none;
+  overflow: hidden;
+}
+
+#toasts > li {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+}
+
+#toasts .toast {
+  position: relative;
+  display: inline-block;
+  padding: 8rem 20rem;
+  width: 300rem;
+  max-width: 100%;
+  border-top-left-radius: 10rem;
+  border-bottom-left-radius: 10rem;
+  background: var(--toast);
+  -webkit-animation-name: toast-appear;
+          animation-name: toast-appear;
+  -webkit-animation-duration: 0.5s;
+          animation-duration: 0.5s;
+  -webkit-animation-timing-function: ease-out;
+          animation-timing-function: ease-out;
+  cursor: pointer;
+  -webkit-transition: -webkit-transform 0.2s ease-in-out;
+  transition: -webkit-transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out, -webkit-transform 0.2s ease-in-out;
+}
+
+#toasts .toast.disappear {
+  right: -100%;
+  opacity: 0;
+  -webkit-animation-name: toast-disappear;
+          animation-name: toast-disappear;
+}
+
+#toasts .toast:hover, #toasts .toast:focus {
+  background: var(--toast-hover);
+  -webkit-transform: translateX(10rem);
+          transform: translateX(10rem);
+}
+
+#toasts .toast.warning {
+  background: var(--toast-warning);
+}
+
+#toasts .toast.warning:hover, #toasts .toast.warning:focus {
+  background: var(--toast-warning-hover);
+}
+
+#toasts .toast.success {
+  background: var(--toast-success);
+}
+
+#toasts .toast.success:hover, #toasts .toast.success:focus {
+  background: var(--toast-success-hover);
+}
+
+#toasts .toast.error {
+  background: var(--toast-error);
+}
+
+#toasts .toast.error:hover, #toasts .toast.error:focus {
+  background: var(--toast-error-hover);
+}
+
+@-webkit-keyframes toast-appear {
+  from {
+    opacity: 0.5;
+    -webkit-transform: translateX(100%);
+            transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+}
+
+@keyframes toast-appear {
+  from {
+    opacity: 0.5;
+    -webkit-transform: translateX(100%);
+            transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+}
+
+@-webkit-keyframes toast-disappear {
+  from {
+    opacity: 1.0;
+    -webkit-transform: translateX(calc(-100% + 10rem));
+            transform: translateX(calc(-100% + 10rem));
+  }
+  to {
+    opacity: 0;
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+}
+
+@keyframes toast-disappear {
+  from {
+    opacity: 1.0;
+    -webkit-transform: translateX(calc(-100% + 10rem));
+            transform: translateX(calc(-100% + 10rem));
+  }
+  to {
+    opacity: 0;
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+}

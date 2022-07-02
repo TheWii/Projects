@@ -1,0 +1,27 @@
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.page-wrap {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.canvas-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#canvas {
+    display: block;
+    width: 90%;
+    max-width: 800px;
+    border: whitesmoke 5px solid;
+}

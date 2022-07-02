@@ -1,0 +1,50 @@
+
+.bouncing-circles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 2em;
+    height: 1em;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-15rem);
+    transition: transform 0.25s ease-in,
+                opacity 0.25s ease-in;
+}
+.bouncing-circles.active {
+    pointer-events: all;
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.bouncing-circles > div {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: #000;
+    animation: slide 0.5s infinite;
+    animation-timing-function: linear;
+}
+
+.bouncing-circles > div:nth-child(1) {
+    animation-delay: 0s;
+}
+.bouncing-circles > div:nth-child(2) {
+    animation-delay: -0.125s;
+}
+.bouncing-circles > div:nth-child(3) {
+    animation-delay: -0.25s;
+}
+
+@keyframes slide {
+    0% {
+        transform: translateY(0);
+    }
+    25% {
+        transform: translateY(0.25em);
+    }
+    75% {
+        transform: translateY(-0.25em);
+    }
+}
